@@ -10,7 +10,7 @@ CPX_INCDIR  = $(CPX_BASE)/cplex/include
 CPX_LIBDIR  = $(CPX_BASE)/cplex/lib/x86-64_linux/static_pic
 CPX_LDFLAGS = -lcplex -lm -pthread -ldl
 
-OBJ = $(BUILDDIR)/main.o 
+OBJ = $(BUILDDIR)/parser.o $(BUILDDIR)/model.o $(BUILDDIR)/main.o 
 
 $(BUILDDIR)/%.o: $(SOURCEDIR)/%.cpp
 		$(CC) $(CPPFLAGS) -I$(CPX_INCDIR) -c $^ -o $@
