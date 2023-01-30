@@ -14,7 +14,7 @@ class Parser {
 
   public:
 
-    Graph buildGraph(const std::string&);
+    Graph buildGraph(std::string);
 
 };
 

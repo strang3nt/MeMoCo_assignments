@@ -10,13 +10,13 @@ CPX_INCDIR  = $(CPX_BASE)/cplex/include
 CPX_LIBDIR  = $(CPX_BASE)/cplex/lib/x86-64_linux/static_pic
 CPX_LDFLAGS = -lcplex -lm -pthread -ldl
 
-OBJ = $(BUILDDIR)/parser.o $(BUILDDIR)/model.o $(BUILDDIR)/main.o 
+OBJ = main.o parser.o model.o 
 
-$(BUILDDIR)/%.o: $(SOURCEDIR)/%.cpp
+%.o: $(SOURCEDIR)/%.cpp
 		$(CC) $(CPPFLAGS) -I$(CPX_INCDIR) -c $^ -o $@
 
 main: $(OBJ)
-		$(CC) $(CPPFLAGS) $(OBJ) -o $(BUILDDIR)/main -L$(CPX_LIBDIR) $(CPX_LDFLAGS)
+		$(CC) $(CPPFLAGS) $(OBJ) -o main -L$(CPX_LIBDIR) $(CPX_LDFLAGS)
 
 clean:
 		rm -rf $(OBJ) main

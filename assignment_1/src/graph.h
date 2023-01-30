@@ -1,10 +1,7 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
-#include<memory>
 #include<vector>
-#include<list>
-#include<tuple>
 
 struct Graph {
 
@@ -12,9 +9,9 @@ struct Graph {
     const int N;
 
     // weights of the edges c(i, j) <==> c[i][j]
-    const std::vector<std::vector<double>> c;
+    std::vector<std::vector<double>> c;
 
-    Graph(const int N, const std::vector<std::vector<double>>& c): N(N), c(c) {};
+    Graph(const int _N, const std::vector<std::vector<double>>& _c): N(_N), c(_c) {};
 
 };
 

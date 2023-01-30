@@ -2,3 +2,8 @@
 
 # Build, executables and result artifacts
 */out
+*/main
+
+# CPLEX
+*.sol
+*.lp

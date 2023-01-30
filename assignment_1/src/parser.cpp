@@ -23,7 +23,11 @@ std::vector<std::string> Parser::file(const std::string& path) {
   std::string line;
   std::ifstream input_file(path);
   
-  while (getline(input_file, line)) {
+  getline(input_file, line);
+  auto header = (int) stringToArray(line, 1)[0];
+
+  for(int i = 0; i < header; i++) {
+    getline(input_file, line);
     lines.push_back(line);
   }
 
@@ -31,19 +35,17 @@ std::vector<std::string> Parser::file(const std::string& path) {
   return lines;
 }
 
-Graph Parser::buildGraph(const std::string& path) {
+Graph Parser::buildGraph(std::string path) {
 
     auto edgesString = file(path);
-
-    const int N = stringToArray(edgesString[0], 1)[0];
-    edgesString.erase(edgesString.begin());
-
+    const int N = edgesString.size();
     std::vector<std::vector<double>> nodes;
+
     for(int i = 0; i < N; i++) {
       nodes.push_back(stringToArray(edgesString[i], 2));
     }
 
-    std::vector<std::vector<double>> c(N);
+    std::vector<std::vector<double>> c(N, std::vector<double>(N, 0.0));
     
     for(int i = 0; i < N; i++) {
       for(int j = 0; j < N; j++) {
@@ -52,9 +54,9 @@ Graph Parser::buildGraph(const std::string& path) {
         double x2 = nodes[i][0];
         double y2 = nodes[i][1];
         double distance = std::sqrt(std::pow(x2 - x1, 2) + std::pow(y2-y1, 2));
-        c[i].push_back(distance);
-
+        c[i][j] = distance;
       }
+      
     }
 
     return Graph(N, c);
