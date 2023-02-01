@@ -43,17 +43,17 @@ Graph Parser::buildGraph(std::string path) {
     std::vector<std::vector<double>> nodes;
 
     for(int i = 0; i < N; i++) {
-      nodes.push_back(stringToArray(edgesString[i], 2));
+      nodes.push_back(stringToArray(edgesString[i], 3));
     }
 
     std::vector<std::vector<double>> c(N, std::vector<double>(N, 0.0));
     
     for(int i = 0; i < N; i++) {
       for(int j = 0; j < N; j++) {
-        double x1 = nodes[i][0];
-        double y1 = nodes[i][1];
-        double x2 = nodes[j][0];
-        double y2 = nodes[j][1];
+        double x1 = nodes[i][1];
+        double y1 = nodes[i][2];
+        double x2 = nodes[j][1];
+        double y2 = nodes[j][2];
 
         // euclidean distance
         c[i][j] = std::sqrt(std::pow(x1 - x2, 2) + std::pow(y1 - y2, 2));      

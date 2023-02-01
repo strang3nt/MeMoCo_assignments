@@ -100,14 +100,9 @@ TimeMeasures Model::solveTsp(const int N) {
 		if (n != N * N * 2 - N) { 
       throw std::runtime_error(std::string(__FILE__) + ":" + STRINGIZE(__LINE__) + ": " + "different number of variables"); 
     }
-	  // std::vector<double> varVals;
-		// varVals.resize(n);
-    // CHECKED_CPX_CALL(CPXgetx, env, lp, &varVals[0], 0, n - 1);
-		// status =      CPXgetx (env, lp, x, 0, CPXgetnumcols(env, lp)-1);
-    // for (int i = 0 ; i < n ; i++) {
-    //   std::cout << "var in position " << i << " : " << varVals[i] << std::endl;
-    // }
+
 		CHECKED_CPX_CALL(CPXsolwrite, env, lp, "TSP.sol");
+    
     return {
       (double)(tv2.tv_sec+tv2.tv_usec*1e-6 - (tv1.tv_sec+tv1.tv_usec*1e-6)),
       (double)(t2-t1) / CLOCKS_PER_SEC
