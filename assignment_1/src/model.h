@@ -2,7 +2,7 @@
 #define MODEL_H
 
 #include "cpxmacro.h"
-#include "graph.h"
+#include <vector>
 
 struct TimeMeasures {
   double userTime;
@@ -12,15 +12,15 @@ struct TimeMeasures {
 class Model {
 
   public:
-    Model(Env _env): env(_env) {};
+    Model(Env _env, Prob _lp): env(_env), lp(_lp) {};
 
     // creates variables and constraints
-    
-    TimeMeasures solveTsp(const Graph&);
+    void initTsp(const int, const std::vector<std::vector<double>>&);
+    TimeMeasures solveTsp(const int);
 
   protected:
-    void initTsp(Prob lp, const Graph&);
     Env env;
+    Prob lp;
 };
 
-#endif
+#endif /* MODEL_H */

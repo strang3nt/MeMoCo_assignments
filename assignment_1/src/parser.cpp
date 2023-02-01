@@ -1,12 +1,13 @@
 #include "parser.h"
 #include "graph.h"
-#include<vector>
-#include<fstream>
-#include<string>
-#include<algorithm>
-#include<sstream>
-#include<cmath>
-#include<iostream>
+#include <vector>
+#include <fstream>
+#include <string>
+#include <algorithm>
+#include <sstream>
+#include <cmath>
+#include <iostream>
+#include <limits>
 
 std::vector<double> Parser::stringToArray(const std::string &s, int words) {
   std::vector<double> edge(words);
@@ -49,14 +50,14 @@ Graph Parser::buildGraph(std::string path) {
     
     for(int i = 0; i < N; i++) {
       for(int j = 0; j < N; j++) {
-        double x1 = nodes[j][0];
-        double y1 = nodes[j][1];
-        double x2 = nodes[i][0];
-        double y2 = nodes[i][1];
-        double distance = std::sqrt(std::pow(x2 - x1, 2) + std::pow(y2-y1, 2));
-        c[i][j] = distance;
+        double x1 = nodes[i][0];
+        double y1 = nodes[i][1];
+        double x2 = nodes[j][0];
+        double y2 = nodes[j][1];
+
+        // euclidean distance
+        c[i][j] = std::sqrt(std::pow(x1 - x2, 2) + std::pow(y1 - y2, 2));      
       }
-      
     }
 
     return Graph(N, c);

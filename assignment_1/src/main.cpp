@@ -1,5 +1,8 @@
-#include "model.h"
 #include "parser.h"
+#include "model.h"
+
+#include <ctime>
+#include <sys/time.h>
 #include <memory>
 #include <iostream>
 
@@ -10,21 +13,25 @@ char errmsg[BUF_SIZE];
 int main(int, char**) {
 
   try {
-    DECL_ENV(env);
-
+    
     const auto parser = std::make_unique<Parser>();
-    const auto model = std::make_unique<Model>(env);
-
-    const auto graph = parser->buildGraph("../tsp_instances/input_float_90_24.txt");
+    const auto graph = parser->buildGraph("../tsp_instances/input_float_9_4.txt");
     std::cout<< "Parsed graph of size " << graph.N << "\n";
-    const auto timings = model->solveTsp(graph);
+
+    DECL_ENV(env);
+    DECL_PROB(env, lp);
+
+    const auto model = std::make_unique<Model>(env, lp);
+    model->initTsp(graph.N, graph.c);
+    const auto timings = model->solveTsp(graph.N);
 
     // free
+    CPXfreeprob(env, &lp);
     CPXcloseCPLEX(&env);
 
-    std::cout << "CPU time is: " << timings.cpuTime << "\n"
-              << "user time is: " << timings.userTime << "\n";
-  
+    std::cout << "CPU time: " << timings.cpuTime << "\n"
+              << "User time: " << timings.userTime << "\n";
+
   } catch (std::exception& e) {
 		
     std::cout << ">>>EXCEPTION: " << e.what() << std::endl;

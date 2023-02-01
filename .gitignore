@@ -3,6 +3,7 @@
 # Build, executables and result artifacts
 */out
 */main
+*.o
 
 # CPLEX
 *.sol
