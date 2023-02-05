@@ -1,3 +1,4 @@
+# IDE artifacts
 .vscode
 
 # Build, executables and result artifacts
@@ -8,3 +9,6 @@
 # CPLEX
 *.sol
 *.lp
+
+# Report artifacts
+*.pdf
