@@ -4,7 +4,8 @@
 #include "cpxmacro.h"
 #include <vector>
 
-struct TimeMeasures {
+struct Results {
+  double result;
   double userTime;
   double cpuTime;
 };
@@ -12,15 +13,14 @@ struct TimeMeasures {
 class Model {
 
   public:
-    Model(Env _env, Prob _lp): env(_env), lp(_lp) {};
+    Model(Env _env): env(_env) {};
 
-    // creates variables and constraints
-    void initTsp(const int, const std::vector<std::vector<double>>&);
-    TimeMeasures solveTsp(const int);
+    Results solveTsp(const int, const std::vector<std::vector<double>>&);
 
   protected:
     Env env;
-    Prob lp;
+    void initTsp(Prob, const int, const std::vector<std::vector<double>>&);
+
 };
 
 #endif /* MODEL_H */
