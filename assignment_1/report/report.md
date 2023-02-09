@@ -27,9 +27,15 @@ header-includes: |
 
 In this report I show an implementation of a (mixed) integer linear programming model (MILP)
 of the Traveling Salesperson Problem (TSP). The implementation is written in the 
-C++ language and uses the CPLEX Callable Library [@noauthor_ibm_2021].
+C++ language and uses the CPLEX Callable Library [@noauthor_ibm_2021]. The goal is to 
+study up to which size the problem can be solved in different amounts of time: 0.1 second, 1 second, 10 seconds. 
 
-The model is exactly the one presented in [@gavish_travelling_1978].
+Follows a description of the model and its implementation.
+Section [Tests] contains a description of the instances used and a study of the model's behavior under different sizes of problems.
+
+# MILP model
+
+The model is exactly the one described in [@gavish_travelling_1978].
 
 Sets:
 
@@ -71,9 +77,6 @@ Constraints:
   x_{ij} \in \mathbb{R}_+ & && \forall (i,j)\in A,j\neq 0 \\
   y_{ij} \in \{0,1\} & && \forall (i,j)\in A.
 \end{align}
-
-Follows a description of the implementation.
-Section [Tests] contains a description of the instances used and a study of the model's behavior under different sizes of problems: in particular 
 
 # Implementation
 
@@ -231,11 +234,17 @@ Note that:
 I retrieved 4 test instances from [@noauthor_vlsi_nodate]. This website
 contains many instances of TSP. Each file contains a number of node coordinates, and the weight of an edge $(i,j)$ is the euclidean distance between node $i$ and $j$, in a 2d plane.
 
-From each instance I built a 10, 20, 40, 60, and a 120 nodes instance: the goal was to have instances which could be solved by my machine in (around) 0.1 second, 1 second and under 10 seconds, and to have two more data points in order to plot a more meaningful graph.
+Each initial instance was cut down to a 10, 20, 40, 60, and a 120 nodes: the goal was to have instances which could be solved by my machine in (around) 0.1 second, 1 second and under 10 seconds, and to have two more data points in order have more meaningful data.
 
 ## Test results
 
-> The tests were run on a linux laptop, with 8gb of ram and a 6 cores, 12 threads CPU, with a local CPLEX install.
+> The tests were executed on a linux laptop, with 8gb of ram and a 6 cores, 12 threads CPU, with a local CPLEX install.
+
+Table \ref{tab:results} shows user and CPU time of the different instances.
+The user time is the time the test took to complete.
+The CPU time is the time the test took to complete, taking into account all cores time of use:
+CPLEX uses multi-threading to solve linear programming problems, CPU time can be thought as
+the total time it could take if the test was run on a single-core CPU.
 
   Instance     Nodes   Edges    Result  User time(seconds)  CPU time(seconds)
   ---------- ------- ------- --------- ------------------- ------------------
@@ -260,8 +269,38 @@ From each instance I built a 10, 20, 40, 60, and a 120 nodes instance: the goal 
   xqg060     60      3600    257.8330  3.6196200             19.549500
   xqg120     120     14400   559.7210  196.8660000           1654.390000
 
+: Run-time  and results of the instances tested. The table displays the weight of the TSP tour, the user time
+and the CPU time, in seconds. \label{tab:results}
+
+ Nodes	Edges	 User time  CPU time
+------ ------ ---------- ---------
+  10    100	     0.0687	  0.3399
+  20    400	     0.3149	  2.7177
+  40    1600	   1.2198	  10.0785
+  60    3600	  12.5431	  113.8838
+  120    14400  262.7933	2431.1225
+
+: Run-time of the instances tested, grouped by size. For each size the average of user time, and the CPU time is displayed, in seconds. User time and CPU time were rounded to the 4th decimal. \label{tab:resultsAverage}
+
+Table \ref{tab:resultsAverage} shows the average CPU and user time per instance size: we can now answer the initial question. Note that, by comparing tables \ref{tab:results} with the latter,
+completion times between instances with the same size differ, sometimes by a lot:
+take for example xqf060 and pma060. The answer, with respect to the user time:
+
+ - the MILP implementation is definitely able to solve a 10 nodes instance in under 0.1 seconds,
+ and some of the 20 nodes implementations as well
+ - only some of the 40 nodes instances can be solved in less than a second
+ - only some of the 60 nodes instances can be solved in less than 10 seconds.
+
+It is interesting to notice that the CPU time starts with (roughly) a 1 to 5 ratio, the user time is 5 times smaller than the CPU time, and ends with a 1 to 9 ratio: multi-threading becomes more and more an important the bigger the instances are.
+By considering the CPU time, I see that none of the 10 nodes instances can be solved in less than .1 seconds, but all of them, along with some with a size of 20, can be solved within less than a second. Only some instances with a size of 40 can be solved in less than 10 seconds.
+
+<!-- graph 1 shows the exponential nature of MILP (with respect to time complexity.)  -->
+
 
 # Conclusion
+
+In this brief report I showed a in implementation of a MILP model for the TSP, such implementation finds an optimal answer in exponential time complexity, or a very 
+high degree polynomial time complexity, it depends on the CPLEX implementation and the optimizations it applies. 
 
 
 # References
