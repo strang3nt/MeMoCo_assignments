@@ -4,7 +4,7 @@
 #include <sys/time.h>
 #include "linKernighan.h"
 
-void Model::initTsp(Prob lp, const int N, const std::vector<std::vector<double>>& c) {
+void Model::initTsp(Prob lp, const int N, const std::vector<std::vector<double>>& c) const {
 
   // add y vars
   for(int i = 0; i < N; ++i) {
@@ -79,7 +79,7 @@ void Model::initTsp(Prob lp, const int N, const std::vector<std::vector<double>>
   // CHECKED_CPX_CALL(CPXwriteprob, env, lp, "tsp.lp", NULL);
 }
 
-std::set<std::tuple<int, int>> Model::getFeasibleSolution(const int N, const std::vector<std::vector<double>>& graph, const int solLimit) {
+const std::set<std::tuple<int, int>> Model::getFeasibleSolution(const int N, const std::vector<std::vector<double>>& graph, const int solLimit) const {
 
   std::set<std::tuple<int, int>> feasibleSol;
   try {
@@ -119,7 +119,7 @@ std::set<std::tuple<int, int>> Model::getFeasibleSolution(const int N, const std
   return feasibleSol;
 }
 
-Results Model::solveTsp(const int N, const std::vector<std::vector<double>>& graph) {
+const Results Model::solveTsp(const int N, const std::vector<std::vector<double>>& graph) const {
 
 	try {
 

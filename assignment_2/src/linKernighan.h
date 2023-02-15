@@ -14,7 +14,7 @@ class LinKernighan {
 
   public:
     // trick to have only edge (i, j) of symmetric tsp, instead of having (i, j) and (j, i)
-    static const std::tuple<int, int>& makeTuple(int u, int v) {
+    static const std::tuple<int, int> makeTuple(int u, int v) {
       return u > v ? std::make_tuple(v, u) : std::make_tuple(u, v);
     }
 
@@ -26,19 +26,19 @@ class LinKernighan {
       return alternatingTrailPairwise;
     }
 
-    const std::set<std::tuple<int, int>>& setUnion(const std::set<std::tuple<int, int>> &A, const std::set<std::tuple<int, int>>& B) {
+    const std::set<std::tuple<int, int>> setUnion(const std::set<std::tuple<int, int>> &A, const std::set<std::tuple<int, int>>& B) {
       std::set<std::tuple<int, int>> result;
       std::set_union(A.begin(), A.end(), B.begin(), B.end(), std::inserter(result, result.begin())); 
       return result;
     }
 
-    const std::set<std::tuple<int, int>>& setDifference(const std::set<std::tuple<int, int>> &A, const std::set<std::tuple<int, int>>& B) {
+    const std::set<std::tuple<int, int>> setDifference(const std::set<std::tuple<int, int>> &A, const std::set<std::tuple<int, int>>& B) {
       std::set<std::tuple<int, int>> result;
       std::set_difference(A.begin(), A.end(), B.begin(), B.end(), std::inserter(result,result.begin()));
       return result;
     }
 
-    const std::set<std::tuple<int, int>>& setSymmetricDifference(const std::set<std::tuple<int, int>> &A, const std::set<std::tuple<int, int>>& B) {
+    const std::set<std::tuple<int, int>> setSymmetricDifference(const std::set<std::tuple<int, int>> &A, const std::set<std::tuple<int, int>>& B) {
       std::set<std::tuple<int, int>> result;
       std::set_symmetric_difference(A.begin(), A.end(), B.begin(), B.end(), std::inserter(result,result.begin()));
       return result;
@@ -98,7 +98,6 @@ class LinKernighan {
           if (i % 2 == 0) {// if i is even
 
             for(size_t u = 0; u < weight.size(); ++u) {
-              
               const auto& xi = makeTuple(vi, u);
               const auto& yi = makeTuple(u, alternatingTrail.at(0));
               const auto& setDifference_ = setDifference(tour, alternatingTrailPairwise);
@@ -122,7 +121,6 @@ class LinKernighan {
           }
 
           else {
-            
             double candidateG = gi - weight.at(vi).at(alternatingTrail.at(0));
             const auto& currTrail = setUnion(tour, alternatingTrailPairwise);
             const auto& endNode = makeTuple(vi, alternatingTrail.at(0));
@@ -134,7 +132,7 @@ class LinKernighan {
               G = candidateG;
             }
             for(size_t u = 0; u < weight.size(); ++u) {
-                if(gi > weight.at(vi).at(u) && currTrail.find(makeTuple(vi, u)) == currTrail.end())// and vi u is not in current trail
+                if(gi > weight.at(vi).at(u) && currTrail.find(makeTuple(vi, u)) == currTrail.end())
                   stack.push_front({u, i + 1, gi - weight.at(vi).at(u)});
             }
             alternatingTrailPairwise.erase(endNode);
@@ -142,7 +140,7 @@ class LinKernighan {
           
           int j = 0;
           std::tie(std::ignore, j, std::ignore) = stack.front();
-          if(j <= i) {
+          if(j >= i) {
             if(G > 0) {
               tour = setSymmetricDifference(tour, F);
               stack.clear();
@@ -153,6 +151,7 @@ class LinKernighan {
             }
           }
         }
+
       } while (G > 0);
 
       return tour;

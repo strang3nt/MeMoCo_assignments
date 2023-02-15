@@ -17,13 +17,13 @@ class Model {
   public:
     Model(Env _env): env(_env) {};
 
-    Results solveTsp(const int, const std::vector<std::vector<double>>&);
-    std::set<std::tuple<int, int>> getFeasibleSolution(const int, const std::vector<std::vector<double>>&, const int);
+    const Results solveTsp(const int, const std::vector<std::vector<double>>&) const;
+    const std::set<std::tuple<int, int>> getFeasibleSolution(const int, const std::vector<std::vector<double>>&, const int) const;
 
 
   protected:
     Env env;
-    void initTsp(Prob, const int, const std::vector<std::vector<double>>&);
+    void initTsp(Prob, const int, const std::vector<std::vector<double>>&) const;
 
 };
 

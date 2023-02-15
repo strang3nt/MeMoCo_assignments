@@ -10,7 +10,7 @@
 #include <limits>
 #include "cpxmacro.h"
 
-std::vector<double> Parser::stringToArray(const std::string &s, int words) {
+std::vector<double> Parser::stringToArray(const std::string &s, int words) const {
   std::vector<double> edge(words);
   std::stringstream ssin(s);
   for (int i = 0; i < words && ssin.good(); i++ ) {
@@ -19,7 +19,7 @@ std::vector<double> Parser::stringToArray(const std::string &s, int words) {
   return edge;
 }
 
-std::vector<std::string> Parser::file(const std::string& path) {
+std::vector<std::string> Parser::file(const std::string& path) const {
 
   std::vector<std::string> lines;
   std::string line;
@@ -37,7 +37,7 @@ std::vector<std::string> Parser::file(const std::string& path) {
   return lines;
 }
 
-Graph Parser::buildGraph(std::string path) {
+Graph Parser::buildGraph(std::string path) const {
 
     auto edgesString = file(path);
     const int N = edgesString.size();
