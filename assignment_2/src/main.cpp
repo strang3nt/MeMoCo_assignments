@@ -1,5 +1,4 @@
 #include "parser.h"
-#include "model.h"
 #include "linKernighan.h"
 
 #include <ctime>
@@ -15,42 +14,50 @@
 #include <execution>
 #include <tuple>
 
-// error  status and message buffer
-int status;
-char errmsg[BUF_SIZE];
+struct Results {
+  double result;
+  double userTime;
+  double cpuTime;
+};
+
+const Results runLK(const std::unique_ptr<LinKernighan>& lk, const std::vector<std::vector<double>>& weight) {
+  clock_t t1,t2;
+  t1 = clock();
+  struct timeval  tv1, tv2;
+  gettimeofday(&tv1, NULL);
+  const auto& tour = lk->localOptimalTour(weight);          
+  t2 = clock();
+  gettimeofday(&tv2, NULL);
+
+  double tourCost = 0;
+  for(const auto& [i, j]: tour) {
+    tourCost += weight[i][j];
+  }
+
+  return {
+    tourCost,
+    (double)(tv2.tv_sec+tv2.tv_usec*1e-6 - (tv1.tv_sec+tv1.tv_usec*1e-6)),
+    (double)(t2-t1) / CLOCKS_PER_SEC
+  };
+
+}
 
 int main(int argc, char const *argv[]) {
 
   try {
     
     const auto parser = std::make_unique<const Parser>();
-    DECL_ENV(env);
-    const auto model = std::make_unique<const Model>(env);
     const auto linKernighan = std::make_unique<LinKernighan>();
 
     if (argc >= 2) {
       const auto graph = parser->buildGraph("../tsp_instances/" + std::string(argv[1]));
       std::cout<< "Parsed graph of size " << graph.N << "\n";
       
-      clock_t t1,t2;
-      t1 = clock();
-      struct timeval  tv1, tv2;
-      gettimeofday(&tv1, NULL);
+      const auto results = runLK(linKernighan, graph.c);
 
-      const auto feasibleTour = model->getFeasibleSolution(graph.N, graph.c, 1);
-      const auto& tour = linKernighan->localOptimalTour(feasibleTour, graph.c);
-          
-      t2 = clock();
-      gettimeofday(&tv2, NULL);
-
-      double tourCost = 0;
-      for(const auto& [i, j]: tour) {
-        tourCost += graph.c[i][j];
-      }
-
-      std::cout << "Tour cost: " << tourCost << "\n"
-                << "User time (seconds): " << (double)(tv2.tv_sec+tv2.tv_usec*1e-6 - (tv1.tv_sec+tv1.tv_usec*1e-6)) << "\n"
-                << "CPU time (seconds): " << (double)(t2-t1) / CLOCKS_PER_SEC << "\n";
+      std::cout << "Tour cost: " << results.result << "\n"
+                << "User time (seconds): " <<  results.userTime << "\n"
+                << "CPU time (seconds): " << results.cpuTime << "\n";
 
     } else {
 
@@ -87,45 +94,27 @@ int main(int argc, char const *argv[]) {
       std::for_each(
         graphs.begin(),
         graphs.end(),
-        [&myfile, &model, &env, &linKernighan](auto &tuple){ 
+        [&myfile, &linKernighan](auto &tuple){ 
 
           auto& [filename, g] = tuple;
           std::cout << filename << " TSP value: ";
 
-          clock_t t1,t2;
-          t1 = clock();
-          
-          struct timeval  tv1, tv2;
-          gettimeofday(&tv1, NULL);
-
-          const auto feasibleTour = model->getFeasibleSolution(g->N, g->c, 1);
-          const auto& tour = linKernighan->localOptimalTour(feasibleTour, g->c);
-          
-          t2 = clock();
-          gettimeofday(&tv2, NULL);
-
-          double tourCost = 0;
-          for(const auto& [i, j]: tour) {
-            tourCost += g->c[i][j];
-          }
-          std::cout << tourCost << "\n";
+          const auto results = runLK(linKernighan, g->c);
+          std::cout << results.result << "\n";
 
           myfile 
             << filename << ","
             << g->N << ","
             << g->N * g->N << ","
-            << tourCost << ","
-            << (double)(tv2.tv_sec+tv2.tv_usec*1e-6 - (tv1.tv_sec+tv1.tv_usec*1e-6)) << ","
-            << (double)(t2-t1) / CLOCKS_PER_SEC << "\n";
+            << results.result << ","
+            << results.userTime << ","
+            << results.cpuTime << "\n";
         }
       
       );
 
       myfile.close();
     }
-
-    // free
-    CPXcloseCPLEX(&env);
   } catch (std::exception& e) {
 		
     std::cout << ">>>EXCEPTION: " << e.what() << std::endl;
