@@ -149,7 +149,7 @@ class LinKernighan {
         
         for(int s = 0; s < n; ++s) {
           // find the successor of j I did not visit
-          const auto& it = std::find_if(
+          const auto it = std::find_if(
             tour.begin(), 
             tour.end(),
             [&tour, s, j, &visited, n](const auto& edge){ 

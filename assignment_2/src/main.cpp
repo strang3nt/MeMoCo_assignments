@@ -46,7 +46,7 @@ int main(int argc, char const *argv[]) {
 
   try {
     
-    const auto parser = std::make_unique<const Parser>();
+    const auto parser = std::make_unique<Parser>();
     const auto linKernighan = std::make_unique<LinKernighan>();
 
     if (argc >= 2) {
