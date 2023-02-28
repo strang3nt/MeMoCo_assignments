@@ -20,20 +20,17 @@ struct Results {
   double cpuTime;
 };
 
-const Results runLK(const std::unique_ptr<LinKernighan>& lk, const std::vector<std::vector<double>>& weight) {
+const Results runLK(const std::unique_ptr<LinKernighan>& lk, const Graph& g) {
   clock_t t1,t2;
   t1 = clock();
   struct timeval  tv1, tv2;
   gettimeofday(&tv1, NULL);
-  const auto& tour = lk->localOptimalTour(weight);          
+  const auto& tour = lk->localOptimalTour(g);          
   t2 = clock();
   gettimeofday(&tv2, NULL);
 
-  double tourCost = 0;
-  for(const auto& [i, j]: tour) {
-    tourCost += weight[i][j];
-  }
-
+  double tourCost = tour->cost(g);
+  
   return {
     tourCost,
     (double)(tv2.tv_sec+tv2.tv_usec*1e-6 - (tv1.tv_sec+tv1.tv_usec*1e-6)),
@@ -53,7 +50,7 @@ int main(int argc, char const *argv[]) {
       const auto graph = parser->buildGraph("../tsp_instances/" + std::string(argv[1]));
       std::cout<< "Parsed graph of size " << graph.N << "\n";
       
-      const auto results = runLK(linKernighan, graph.c);
+      const auto results = runLK(linKernighan, graph);
 
       std::cout << "Tour cost: " << results.result << "\n"
                 << "User time (seconds): " <<  results.userTime << "\n"
@@ -99,7 +96,7 @@ int main(int argc, char const *argv[]) {
           auto& [filename, g] = tuple;
           std::cout << filename << " TSP value: ";
 
-          const auto results = runLK(linKernighan, g->c);
+          const auto results = runLK(linKernighan, *g.get());
           std::cout << results.result << "\n";
 
           myfile 
