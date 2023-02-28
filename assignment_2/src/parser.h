@@ -9,11 +9,11 @@ class Parser {
 
   private:
 
-    std::vector<double> stringToArray(const std::string&, int) const;
-    std::vector<std::string> file(const std::string&) const;
+    std::vector<double> stringToArray(const std::string&, const int);
+    std::vector<std::string> file(const std::string&);
 
   public:
-    Graph buildGraph(std::string) const;
+    Graph buildGraph(const std::string&);
 
 };
 

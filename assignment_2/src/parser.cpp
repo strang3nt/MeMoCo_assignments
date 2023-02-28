@@ -1,16 +1,15 @@
 #include "parser.h"
 #include "graph.h"
+
 #include <vector>
 #include <fstream>
 #include <string>
 #include <algorithm>
 #include <sstream>
 #include <cmath>
-#include <iostream>
 #include <limits>
-#include "cpxmacro.h"
 
-std::vector<double> Parser::stringToArray(const std::string &s, int words) const {
+std::vector<double> Parser::stringToArray(const std::string &s, const int words) {
   std::vector<double> edge(words);
   std::stringstream ssin(s);
   for (int i = 0; i < words && ssin.good(); i++ ) {
@@ -19,7 +18,7 @@ std::vector<double> Parser::stringToArray(const std::string &s, int words) const
   return edge;
 }
 
-std::vector<std::string> Parser::file(const std::string& path) const {
+std::vector<std::string> Parser::file(const std::string& path) {
 
   std::vector<std::string> lines;
   std::string line;
@@ -37,7 +36,7 @@ std::vector<std::string> Parser::file(const std::string& path) const {
   return lines;
 }
 
-Graph Parser::buildGraph(std::string path) const {
+Graph Parser::buildGraph(const std::string& path) {
 
     auto edgesString = file(path);
     const int N = edgesString.size();
@@ -57,7 +56,9 @@ Graph Parser::buildGraph(std::string path) const {
         double y2 = nodes[j][2];
 
         // euclidean distance
-        c[i][j] = j == i ? CPX_INFBOUND : std::sqrt(std::pow(x1 - x2, 2) + std::pow(y1 - y2, 2));      
+        c[i][j] = j == i ? 
+          std::numeric_limits<double>::max() : 
+          std::sqrt(std::pow(x1 - x2, 2) + std::pow(y1 - y2, 2));      
       }
     }
 

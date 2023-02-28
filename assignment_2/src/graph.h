@@ -2,11 +2,6 @@
 #define GRAPH_H
 
 #include<vector>
-#include "cpxmacro.h"
-#include <algorithm>
-#include <tuple>
-#include <iterator>
-#include <numeric>
 
 struct Graph {
 
