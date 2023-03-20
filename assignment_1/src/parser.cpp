@@ -6,7 +6,6 @@
 #include <algorithm>
 #include <sstream>
 #include <cmath>
-#include <iostream>
 #include <limits>
 
 std::vector<double> Parser::stringToArray(const std::string &s, int words) {
@@ -46,7 +45,7 @@ Graph Parser::buildGraph(std::string path) {
       nodes.push_back(stringToArray(edgesString[i], 3));
     }
 
-    std::vector<std::vector<double>> c(N, std::vector<double>(N, 0.0));
+    std::vector<std::vector<int>> c(N, std::vector<int>(N, 0));
     
     for(int i = 0; i < N; i++) {
       for(int j = 0; j < N; j++) {
@@ -56,7 +55,9 @@ Graph Parser::buildGraph(std::string path) {
         double y2 = nodes[j][2];
 
         // euclidean distance
-        c[i][j] = std::sqrt(std::pow(x1 - x2, 2) + std::pow(y1 - y2, 2));      
+        c[i][j] = j == i ? 
+          std::numeric_limits<int>::max() : 
+          std::round(std::sqrt(std::pow(x1 - x2, 2) + std::pow(y1 - y2, 2)));  
       }
     }
 

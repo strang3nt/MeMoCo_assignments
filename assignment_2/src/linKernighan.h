@@ -22,10 +22,10 @@ class LinKernighan {
     int p2 = 2;
     int p1 = 5;
 
-    std::deque<std::tuple<int, int, double>> stack;
+    std::deque<std::tuple<int, int, int>> stack;
     std::vector<int> alternatingTrail(weight.size() * 2, -1);
     std::unique_ptr<Trail> F;
-    double G = 0.0;
+    int G = 0;
 
     do {
 
@@ -66,7 +66,7 @@ class LinKernighan {
 
         else {
 
-          double candidateG = gi - weight.at(vi).at(alternatingTrail.at(0));
+          int candidateG = gi - weight.at(vi).at(alternatingTrail.at(0));
           const auto& currTrail = tour->trailUnion(*alternatingTrailPairwise.get());
           const auto& endNode = Trail::makeTuple(vi, alternatingTrail.at(0));
           alternatingTrailPairwise->insert(endNode);
@@ -89,6 +89,7 @@ class LinKernighan {
         int j = 0;
         std::tie(std::ignore, j, std::ignore) = stack.front();
         if(i <= j) {
+          
           if(G > 0) {
             tour = tour->trailSymmetricDifference(*F.get());
             stack.clear();
@@ -98,7 +99,7 @@ class LinKernighan {
             }
           }
         }
-      } 
+      }
 
     } while (G > 0);
 

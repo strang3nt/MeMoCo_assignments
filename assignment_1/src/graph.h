@@ -9,9 +9,9 @@ struct Graph {
     const int N;
 
     // weights of the edges c(i, j) <==> c[i][j]
-    std::vector<std::vector<double>> c;
+    std::vector<std::vector<int>> c;
 
-    Graph(const int _N, const std::vector<std::vector<double>>& _c): N(_N), c(_c) {};
+    Graph(const int _N, const std::vector<std::vector<int>>& _c): N(_N), c(_c) {};
 
 };
 

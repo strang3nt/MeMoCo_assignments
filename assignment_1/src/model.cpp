@@ -3,7 +3,7 @@
 #include <ctime>
 #include <sys/time.h>
 
-void Model::initTsp(Prob lp, const int N, const std::vector<std::vector<double>>& c) {
+void Model::initTsp(Prob lp, const int N, const std::vector<std::vector<int>>& c) {
 
   // add y vars
   for(int i = 0; i < N; ++i) {
@@ -79,7 +79,7 @@ void Model::initTsp(Prob lp, const int N, const std::vector<std::vector<double>>
   // CHECKED_CPX_CALL(CPXwriteprob, env, lp, "tsp.lp", NULL);
 }
 
-Results Model::solveTsp(const int N, const std::vector<std::vector<double>>& graph) {
+Results Model::solveTsp(const int N, const std::vector<std::vector<int>>& graph) {
 
 	try {
 

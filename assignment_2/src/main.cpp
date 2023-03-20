@@ -14,18 +14,20 @@
 #include <tuple>
 #include <cmath>
 
-struct Results {
-  double result;
+struct Result {
+  int result;
   double userTime;
   double cpuTime;
 };
 
-double mean(const std::vector<double>& data) {
-  double sum = std::reduce(data.begin(), data.end());
+template <typename T>
+double mean(const std::vector<T>& data) {
+  T sum = std::reduce(data.begin(), data.end());
   return sum / data.size();
 }
 
-double stdDev(double mean, const std::vector<double>& data) {
+template <typename T>
+double stdDev(double mean, const std::vector<T>& data) {
   double stdDev = 0.0;
   int n = data.size();
   for(int i = 0; i < n; ++i) {
@@ -35,7 +37,7 @@ double stdDev(double mean, const std::vector<double>& data) {
   return std::sqrt(stdDev / n);
 }
 
-const Results runLK(const std::unique_ptr<LinKernighan>& lk, const Graph& g) {
+const Result runLK(const std::unique_ptr<LinKernighan>& lk, const Graph& g) {
   clock_t t1,t2;
   t1 = clock();
   struct timeval  tv1, tv2;
@@ -100,7 +102,7 @@ int main(int argc, char const *argv[]) {
 
           const auto& [filename, g] = tuple;
           
-          std::vector<double> costs;
+          std::vector<int> costs;
           std::vector<double> cpuTimes;
           
           for(int i = 0; i < 10; ++i) {

@@ -9,6 +9,7 @@
 #include <numeric>
 #include <chrono>
 #include <random>
+#include <iostream>
 
 #include "graph.h"
 
@@ -29,15 +30,17 @@ class Trail {
 
     Trail(): alternatingTrail(std::set<std::tuple<int,int>>()) {}
 
-    double cost(const Graph& g) const {
-      double sum = 0.0;
+    int cost(const Graph& g) const {
+      int sum = 0;
       for(const auto &[x, y]: this->alternatingTrail) {
         sum += g.c[x][y];
+        std::cout << "("<< x << ", " << y << ") ";
+
       }
       return sum;
     }
 
-    static const std::unique_ptr<Trail> getRandomTour(const std::vector<std::vector<double>>& weight) {
+    static const std::unique_ptr<Trail> getRandomTour(const std::vector<std::vector<int>>& weight) {
       
       size_t n = weight.size();
       std::set<std::tuple<int,int>> tour;
@@ -137,7 +140,7 @@ class Trail {
       return trailPtr;
     }
 
-    const std::set<std::tuple<int, int>> getRandomTourGreedy(const Graph& g) {
+    static const std::unique_ptr<Trail> getRandomTourGreedy(const Graph& g) {
       std::set<std::tuple<int,int>> tour;
       const auto& weight = g.c;
       const size_t n = weight.size();
@@ -165,7 +168,8 @@ class Trail {
       }
       tour.insert({i, initial});
 
-      return tour;
+      auto tourPtr = std::make_unique<Trail>(tour);
+      return tourPtr;
     }
 
 };

@@ -12,17 +12,17 @@ struct Graph {
   const int N;
 
   // weights of the edges c(i, j) <==> c[i][j]
-  std::vector<std::vector<double>> c;
+  std::vector<std::vector<int>> c;
 
-  Graph(const int _N, const std::vector<std::vector<double>>& _c): N(_N), c(_c) {};
+  Graph(const int _N, const std::vector<std::vector<int>>& _c): N(_N), c(_c) {};
 
   const std::vector<int> getNearestNeighbors(const int node) const {
       
     const size_t n = this->c.at(node).size();
-    std::vector<double> costs(this->c.at(node));
+    std::vector<int> costs(this->c.at(node));
     std::vector<int> indices(n);
     std::iota(indices.begin(), indices.end(), 0);
-    std::vector<std::tuple<double, int>> costsIndices(n);
+    std::vector<std::tuple<int, int>> costsIndices(n);
     std::transform(
       costs.begin(), costs.end(),
       indices.begin(),
