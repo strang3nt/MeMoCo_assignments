@@ -36,33 +36,48 @@ In the first sections of the paper I show the LK implementation. Then I compare 
  
 ## Implementation
 
+## Issues of implementation
+
+1. The set data structure has a high computational complexity in lookup, insertion, deletion of entries, but it greatly simplifies the development process: it allows to easily translate the pseudo-code into the actual C++ implementation. Real world implementations use data structures such as linked lists or arrays of nodes.
+
+2. The implementation is a recursive algorithm: while it has a limit on the recursion depth, inherited by LK itself, some key requirements described [@lin_effective_1973] are missing <!-- such as ... -->. These missing requirements do not harm the optimality of the solution, but they do harm the computational complexity of the algorithm.
+
+3. I did not take into account space complexity: when [@lin_effective_1973] was published it was a problem, and instances with sizes above 100 were a problem. As of now, storage utilization is certainly not the first concern. A possible solution, that would reduce storage utilization, while not increasing the complexity of the implementation, is the use of persistent data structures [@driscoll-1986]. Persistent data structures would allow having multiple versions of the same data structure, without having copies of such data structures. Many programming languages offer persistent data structures in their standard library, such as Scala. 
+C++ only offers persistent data structures through third party libraries.
+
 # Tests
 
 ## Test data
 
 ## Test results
 
-Instance,Nodes,Edges,Result,User time,CPU time
-pka010,10,100,30,0.00244498,0.002447
-pka020,20,400,60.0061,0.0122151,0.012175
-pka040,40,1600,152.087,1.32314,1.32123
-pka060,60,3600,225,3.53624,3.53195
-pka120,120,14400,472.284,154.186,153.981
-pma010,10,100,66,0.00215387,0.002148
-pma020,20,400,72.4775,0.0483072,0.048194
-pma040,40,1600,155.649,0.466176,0.465509
-pma060,60,3600,237.082,4.32367,4.31767
-pma120,120,14400,488.222,108.883,108.722
-xqf010,10,100,81.8798,0.00622201,0.00619
-xqf020,20,400,115.498,0.057502,0.057401
-xqf040,40,1600,157.512,0.11927,0.119111
-xqf060,60,3600,225.09,2.80433,2.80067
-xqf120,120,14400,486.651,100.48,100.335
-xqg010,10,100,98.6212,0.0048511,0.00484
-xqg020,20,400,133.606,0.027863,0.027813
-xqg040,40,1600,194.575,0.550078,0.549321
-xqg060,60,3600,257.833,1.79939,1.79699
-xqg120,120,14400,586.468,103.908,103.761
+
+  Instance     Nodes   Edges    Result  User time(seconds)  CPU time(seconds)
+  ---------- ------- ------- --------- ------------------- ------------------
+  pka010       10     100     30        0.00244498          0.002447
+  pka020       20     400     60.0061   0.0122151           0.012175
+  pka040       40     1600    152.087   1.32314             1.32123
+  pka060       60     3600    225       3.53624             3.53195
+  pka120       120    14400   472.284   154.186             153.981
+  pma010       10     100     66        0.00215387          0.002148
+  pma020       20     400     72.4775   0.0483072           0.048194
+  pma040       40     1600    155.649   0.466176            0.465509
+  pma060       60     3600    237.082   4.32367             4.31767
+  pma120       120    14400   488.222   108.883             108.722
+  xqf010       10     100     81.8798   0.00622201          0.00619
+  xqf020       20     400     115.498   0.057502            0.057401
+  xqf040       40     1600    157.512   0.11927             0.119111
+  xqf060       60     3600    225.09    2.80433             2.80067
+  xqf120       120    14400   486.651   100.48              100.335
+  xqg010       10     100     98.6212   0.0048511           0.00484
+  xqg020       20     400     133.606   0.027863            0.027813
+  xqg040       40     1600    194.575   0.550078            0.549321
+  xqg060       60     3600    257.833   1.79939             1.79699
+  xqg120       120    14400   586.468   103.908             103.761
+
+: Run-time  and results of the instances tested, using the Lin-Kernighan heuristic implementation. The table displays the weight of the TSP tour, the user time
+and the CPU time, in seconds. \label{tab:results}
+
 
 # Conclusion
 

@@ -31,9 +31,8 @@ class Trail {
 
     double cost(const Graph& g) const {
       double sum = 0.0;
-      const auto& weight = g.c;
-      for(const auto& [x, y]: this->alternatingTrail) {
-        sum += weight[x][y];
+      for(const auto &[x, y]: this->alternatingTrail) {
+        sum += g.c[x][y];
       }
       return sum;
     }
@@ -63,7 +62,6 @@ class Trail {
 
     bool isTour(int n) const {
 
-      std::vector<int> successor(n, -1);
       std::vector<bool> visited(n, false);
       
       int j = 0;
@@ -71,15 +69,15 @@ class Trail {
       for(int s = 0; s < n; ++s) {
         // find the successor of j I did not visit
         const auto& it = std::find_if(
-          this->alternatingTrail.begin(), 
+          this->alternatingTrail.begin(),   
           this->alternatingTrail.end(),
           [s, j, &visited, n](const auto& edge){ 
             const auto [x, y] = edge;
-            return (x == j || y == j) && (!visited.at(j == x ? y : x) || s == n - 1); });
+            int i = j == x ? y : x;
+            return (x == j || y == j) && (!visited.at(i) || (s == n - 1 && i == 0)); });
         if(it != this->alternatingTrail.end()) {
           visited.at(j) = true;
           const auto [x, y] = *it;
-          successor.at(j) = x == j ? y : x;
           j = x == j ? y : x;
         }
       }

@@ -25,12 +25,13 @@ class LinKernighan {
     std::deque<std::tuple<int, int, double>> stack;
     std::vector<int> alternatingTrail(weight.size() * 2, -1);
     std::unique_ptr<Trail> F;
-    double G = 0;
+    double G = 0.0;
 
-      do {
-      G = 0;
+    do {
+
+      G = 0.0;
       F = std::make_unique<Trail>();
-      for(size_t u = 0; u < weight.size(); ++u) { stack.push_front({u, 0, 0}); }
+      for(size_t u = 0; u < weight.size(); ++u) { stack.push_front({u, 0, 0.0}); }
       
       while (!stack.empty()) {
         const auto [vi, i, gi] = stack.front();
@@ -38,12 +39,13 @@ class LinKernighan {
         alternatingTrail.at(i) = vi;
         const auto& alternatingTrailPairwise = std::make_unique<Trail>(alternatingTrail, i);
 
-        if (i % 2 == 0) {// if i is even
+        if (i % 2 == 0) {
 
+          const auto& diff = tour->trailDifference(*alternatingTrailPairwise.get());
           for(size_t u = 0; u < weight.size(); ++u) {
+
             const auto& xi = Trail::makeTuple(vi, u);
             const auto& yi = Trail::makeTuple(u, alternatingTrail.at(0));
-            const auto& diff = tour->trailDifference(*alternatingTrailPairwise.get());
 
             if(diff->contains(xi)) {
               
@@ -52,7 +54,7 @@ class LinKernighan {
               alternatingTrailPairwise->insert(yi);
               const auto& symDiff = tour->trailSymmetricDifference(*alternatingTrailPairwise.get());
 
-              if(i <= p2 || (!union_->contains(yi) && symDiff->isTour(tour->size()))) {
+              if(i <= p2 || (!union_->contains(yi) && symDiff->isTour(g.N))) {
                 stack.push_front({u, i + 1, gi + weight.at(vi).at(u)});
               }
               alternatingTrailPairwise->erase(xi);
@@ -70,7 +72,7 @@ class LinKernighan {
           alternatingTrailPairwise->insert(endNode);
           const auto& symDiff = tour->trailSymmetricDifference(*alternatingTrailPairwise.get());
           
-          if (candidateG > 0 && candidateG > G && symDiff->isTour(tour->size())) {
+          if (candidateG > 0 && candidateG > G && symDiff->isTour(g.N)) {
             F = std::make_unique<Trail>(*alternatingTrailPairwise.get()); // copy constructor
             G = candidateG;
           }
@@ -86,12 +88,12 @@ class LinKernighan {
         
         int j = 0;
         std::tie(std::ignore, j, std::ignore) = stack.front();
-        if(j >= i) {
+        if(i <= j) {
           if(G > 0) {
             tour = tour->trailSymmetricDifference(*F.get());
             stack.clear();
           } else if(i > p1){
-            while(std::get<1>(stack.front()) > p1) {
+            while(!stack.empty() && std::get<1>(stack.front()) > p1) {
               stack.pop_front();
             }
           }

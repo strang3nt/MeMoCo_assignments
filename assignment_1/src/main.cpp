@@ -32,7 +32,8 @@ int main(int argc, char const *argv[]) {
       std::cout<< "Parsed graph of size " << graph.N << "\n";
       const auto results = model->solveTsp(graph.N, graph.c);
 
-      std::cout << "User time (seconds): " << results.userTime << "\n"
+      std::cout << "Result: " << results.result << "\n"
+                << "User time (seconds): " << results.userTime << "\n"
                 << "CPU time (seconds): " << results.cpuTime << "\n";
     } else {
 

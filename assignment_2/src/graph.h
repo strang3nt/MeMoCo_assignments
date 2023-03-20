@@ -1,7 +1,10 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
-#include<vector>
+#include <vector>
+#include <algorithm>
+#include <numeric>
+#include <tuple>
 
 struct Graph {
 
