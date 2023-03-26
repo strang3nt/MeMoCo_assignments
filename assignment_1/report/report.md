@@ -246,39 +246,39 @@ The CPU time is the time the test took to complete, taking into account all core
 CPLEX uses multi-threading to solve linear programming problems, CPU time can be thought as
 the total time it could take if the test was run on a single-core CPU.
 
-  Instance     Nodes   Edges    Result  User time(seconds)  CPU time(seconds)
-  ---------- ------- ------- --------- ------------------- ------------------
-  pka010     10      100     30.0000   0.0872769             0.352576
-  pka020     20      400     60.0061   0.0989869             0.450906
-  pka040     40      1600    152.0870  1.0632400             8.761830
-  pka060     60      3600    225.0000  2.7708300             16.465300
-  pka120     120     14400   469.9370  385.7080000           3617.640000
-  pma010     10      100     66.0000   0.0704889             0.403712
-  pma020     20      400     72.4775   0.7087530             7.030190
-  pma040     40      1600    155.6490  0.7292610             5.379440
-  pma060     60      3600    233.0650  11.4698000            99.738500
-  pma120     120     14400   478.7700  231.1310000           2161.180000
-  xqf010     10      100     81.8798   0.0553291             0.225854
-  xqf020     20      400     115.4980  0.2708790             1.958750
-  xqf040     40      1600    157.5120  0.6938450             5.322800
-  xqf060     60      3600    225.0700  32.3121000            319.782000
-  xqf120     120     14400   482.7710  237.4680000           2291.280000
-  xqg010     10      100     98.6212   0.0615690             0.377595
-  xqg020     20      400     133.6060  0.1809610             1.430830
-  xqg040     40      1600    194.5750  2.3927900             20.849900
-  xqg060     60      3600    257.8330  3.6196200             19.549500
-  xqg120     120     14400   559.7210  196.8660000           1654.390000
+  Instance   Result  User time(seconds)  CPU time(seconds)
+  --------- ------- ------------------- ------------------
+   pka010       30              0.0812        0.3117
+   pka020       59              0.1437        0.4020
+   pka040      152              1.8568        17.3273
+   pka060      224              1.4288        7.5849
+   pka120      466            313.7200        3.096.3200
+   pma010       66              0.0643        0.3784
+   pma020       72              0.2844        2.4847
+   pma040      153              0.8433        6.8137
+   pma060      228              4.5828        33.0678
+   pma120      474            208.2600        1.889.1000
+   xqf010       81              0.0754        0.3308
+   xqf020      116              0.2673        2.1453
+   xqf040      158              0.7773        5.1893
+   xqf060      224             13.7678        120.2260
+   xqf120      480            253.4320        2.459.2800
+   xqg010       97              0.1395        0.6386
+   xqg020      132              0.4963        4.5762
+   xqg040      193              2.6379        25.2748
+   xqg060      255              3.8536        27.3121
+   xqg120      554            267.3830        2.619.4800
 
 : Run-time  and results of the instances tested. The table displays the weight of the TSP tour, the user time
 and the CPU time, in seconds. \label{tab:results}
 
- Nodes	Edges	 User time  CPU time
------- ------ ---------- ---------
-  10    100	     0.0687	  0.3399
-  20    400	     0.3149	  2.7177
-  40    1600	   1.2198	  10.0785
-  60    3600	  12.5431	  113.8838
-  120    14400  262.7933	2431.1225
+ Nodes	User time    CPU time
+------ ---------- -----------
+10        0.0901      0.4149
+20        0.2979      2.4020
+40        1.5288     13.6513
+60        5.9082     47.0477
+120     260.6988   2516.0450
 
 : Run-time of the instances tested, grouped by size. For each size the average of user time, and the CPU time is displayed, in seconds. User time and CPU time were rounded to the 4th decimal. \label{tab:resultsAverage}
 
