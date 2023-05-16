@@ -34,8 +34,6 @@ class Trail {
       int sum = 0;
       for(const auto &[x, y]: this->alternatingTrail) {
         sum += g.c[x][y];
-        std::cout << "("<< x << ", " << y << ") ";
-
       }
       return sum;
     }

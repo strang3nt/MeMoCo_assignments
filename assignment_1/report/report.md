@@ -136,7 +136,7 @@ main
 
 ## The model implementation
 
-Files `model.h` and `model.cpp` contains model interface and implementation, respectively. I tried to keep the implementation as close as possible to the MILP model described in [Introduction].
+Files `model.h` and `model.cpp` contain the model interface and implementation, respectively. I tried to keep the implementation as close as possible to the MILP model described in [Introduction].
 
  > Note that every `NULL` field is automatically filled by a default value by the CPLEX API.
 
@@ -162,7 +162,8 @@ Listings \ref{lst:initYVars} and \ref{lst:initXVars} contain the initialization 
 Note that:
 
  - each $y_{i,j}$ variable is coupled with its weight, $c_{i,j}$, the weight $c_{i,i}$ is replaced by an infinite value, that is because otherwise the model considers the edge $(i,i)$ while building the hamiltonian cycle ($c_{i,i} = 0$, since the distance between node $i$ and node $i$ is $0$)
- - constraint (6) describes $x_{i,j}$ as a positive, real, number coupled with each edge in $A$, except for $(i,j), j = 0$, thus I initialized $N * (N - 1)$ variables, which are variables $x_{0,1}, x_{0,2}, ..., x_{1,1},..., x_{|N| - 1, |N| - 1}$. 
+ - constraint (6) describes $x_{i,j}$ as a positive, real, number coupled with each edge in $A$, except for $(i,j), j = 0$, thus I initialized $N * (N - 1)$ variables, which are variables $x_{0,1}, x_{0,2}, ..., x_{1,1},..., x_{|N| - 1, |N| - 1}$
+ - the default values for type and bounds of a variable create a continuous number, bounded between zero and infinite.
 
 ```{#lst:firstConstraint .c caption="Creation of the first constraint, it's (2) in the model definition in the introduction."}
   for(int k = 0; k < N - 1; ++k) {
@@ -233,12 +234,15 @@ Note that:
 
 I retrieved 4 test instances from [@noauthor_vlsi_nodate]. This website
 contains many instances of TSP. Each file contains a number of node coordinates, and the weight of an edge $(i,j)$ is the euclidean distance between node $i$ and $j$, in a 2d plane.
+The distance is rounded to the nearest whole value.
 
 Each initial instance was cut down to a 10, 20, 40, 60, and a 120 nodes: the goal was to have instances which could be solved by my machine in (around) 0.1 second, 1 second and under 10 seconds, and to have two more data points in order have more meaningful data.
 
+<!-- TODO: new test results -->
+
 ## Test results
 
-> The tests were executed on a linux laptop, with 8gb of ram and a 6 cores, 12 threads CPU, with a local CPLEX install.
+> Tests were executed on a linux laptop, with 8gb of ram and a 6 cores, 12 threads CPU, with a local CPLEX install.
 
 Table \ref{tab:results} shows user and CPU time of the different instances.
 The user time is the time the test took to complete.
@@ -292,10 +296,9 @@ take for example xqf060 and pma060. The answer, with respect to the user time:
  - only some of the 60 nodes instances can be solved in less than 10 seconds.
 
 It is interesting to notice that the CPU time starts with (roughly) a 1 to 5 ratio, the user time is 5 times smaller than the CPU time, and ends with a 1 to 9 ratio: multi-threading becomes more and more an important the bigger the instances are.
-By considering the CPU time, I see that none of the 10 nodes instances can be solved in less than .1 seconds, but all of them, along with some with a size of 20, can be solved within less than a second. Only some instances with a size of 40 can be solved in less than 10 seconds.
+When considering the CPU time, clearly none of the 10 nodes instances can be solved in less than .1 seconds, but all of them, along with some with a size of 20, can be solved within less than a second. Only some instances with a size of 40 can be solved in less than 10 seconds.
 
 <!-- graph 1 shows the exponential nature of MILP (with respect to time complexity.)  -->
-
 
 # Conclusion
 
