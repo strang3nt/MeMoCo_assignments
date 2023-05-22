@@ -13,6 +13,7 @@
 #include <numeric>
 #include <tuple>
 #include <cmath>
+#include <iomanip>
 
 struct Result {
   int result;
@@ -20,10 +21,14 @@ struct Result {
   double cpuTime;
 };
 
-template <typename T>
-double mean(const std::vector<T>& data) {
-  T sum = std::reduce(data.begin(), data.end());
+double mean(const std::vector<double>& data) {
+  double sum = std::accumulate(data.begin(), data.end(), 0.0);
   return sum / data.size();
+}
+
+double mean(const std::vector<int>& data) {
+  int sum = std::accumulate(data.begin(), data.end(), 0);
+  return sum / static_cast<double>(data.size());
 }
 
 template <typename T>
@@ -53,6 +58,8 @@ const Result runLK(const std::unique_ptr<LinKernighan>& lk, const Graph& g) {
 }
 
 int main(int argc, char const *argv[]) {
+
+  std::cout.precision(std::numeric_limits<double>::max_digits10 + 1);
 
   try {
     
@@ -110,8 +117,11 @@ int main(int argc, char const *argv[]) {
             costs.push_back(result.result);
             cpuTimes.push_back(result.cpuTime);
           }
-
+          for (int i: costs) std::cout << i << " ";
+          std:: cout << "\n";
+        
           auto costsMean = mean(costs);
+          std:: cout << "Mean: " << costsMean << "\n";
           auto costsStdDev = stdDev(costsMean, costs);
 
           auto cpuTimesMean = mean(cpuTimes);
@@ -134,7 +144,7 @@ int main(int argc, char const *argv[]) {
            * Std dev CPU time
           */
           std::cout << filename << " TSP value: " << *minCost << "\n";
-          myfile
+          myfile << std::setprecision(10)
             << filename << ","
             << *minCost << ","
             << *maxCost << ","

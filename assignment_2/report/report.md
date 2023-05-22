@@ -16,7 +16,7 @@ bibliography: references.bibtex
 colorlinks: yes
 header-includes: |
 
-  \usepackage{algorithm2e}
+  \usepackage[ruled]{algorithm2e}
   \lstdefinestyle{tree}{
     literate=
     {├}{{\smash{\raisebox{-1ex}{\rule{1pt}{\baselineskip}}}\raisebox{0.5ex}{\rule{1ex}{1pt}}}}1 
@@ -60,24 +60,23 @@ In the algorithm I use the following notation:
 
 Many implementation details are missing, still this should be a good starting point, and a good outline of LK.
 
-1. Let $T$ be a random starting tour.
-2. For all $t \in T$, let $t$ be $t_1$ do:
+1. For all $t \in T$, let $t$ be $t_1$ do:
   1. Set $G^* = 0$. For all edges adjacent to $t_1$ such that they are in the tour, let one such edge be $x_1$ and let $t_2$ be the other node. Set $i = 1$. For all $x_1$, until $G^* = 0$, do:
-    1. Compute all possible $y_1$, such that $y_1 = (t_2, t_3)$, and $y_1\notin T$, ordered by improvement $g_1 > 0$, descending. For all $y_1$ do (6.c):
-      1. Let $i = i + 1$, and compute all possible $x_2$ such that if it is joined to the first node of the tour, the resulting configuration is a tour, until $G^* = 0$ do:
-        1. Compute all $y_2$, order of increasing cost $c(y_2)$, following conditions 4.c, 4.d, 4.e, which are described below:
-          1.a Repeat until it is not possible to build $x_i$, $y_i$
-            1. Let $i = i + 1$, and choose $x_i$, which currently joins $t_{2i - 1}$ to $t_{2i}$, and $y_i$ as follows:
-              1. let $x_i$ be such that if $t_{2i}$ is joined to $t_1$, the resulting configuration is a tour
-              2. let $y_i$ be some available link available at the node $t_{2i}$ shared with $x_i$, subject to 4.c, 4.d, 4.e
-              3. before $y_i$ is constructed, check if closing up by joining $t_{2i}$ to $t_1$ will give a gain value better than the best seen previously, let $y_i^* = (t_{2i}, t_1)$. If G_{i - 1} + g_i^* > G^*$, set $G^* = G_{i - 1} + g_i^*$
+    1. Compute all possible $y_1$, such that $y_1 = (t_2, t_3)$, and $y_1\notin T$, ordered by improvement $g_1 > 0$, descending. For all $y_1$ do:
+      1. Let $i = 2$, and compute all possible $x_2$ such that if it is joined to the first node of the tour, the resulting configuration is a tour, until $G^* = 0$ do:
+        1. Compute all $y_2$, order of increasing cost $c(y_2)$, following conditions (a), (b), (c), which are described below:
+          1. Repeat until it is not possible to build $x_i$, $y_i$
+              1. Let $i = i + 1$, and choose $x_i$, which currently joins $t_{2i - 1}$ to $t_{2i}$, and $y_i$ as follows:
+              2. let $x_i$ be such that if $t_{2i}$ is joined to $t_1$, the resulting configuration is a tour
+              3. let $y_i$ be some available link available at the node $t_{2i}$ shared with $x_i$, subject to (a), (b), (c)
+              4. before $y_i$ is constructed, check if closing up by joining $t_{2i}$ to $t_1$ will give a gain value better than the best seen previously, let $y_i^* = (t_{2i}, t_1)$. If G_{i - 1} + g_i^* > G^*$, set $G^* = G_{i - 1} + g_i^*$
               if $G_i \ge G^*$, repeat from 1.a
-          1. Set $T = T \\ X \cup Y$ and repeat.
+          2. Set $T = T \\ X \cup Y$ and repeat.
 
 When $i >= 2$ the choice if $x_i$, $y_i$ is subject to more constraints than when $i = 1$, such constraints are
 
  (a) $x_i$ and $y_i$ cannot be part of the alternating trail
- (b) the overall gain, $G_i = \sum_1^i g_j$ is strictly bigger than 0
+ (b) the overall gain, $G_i = \sum_1^i  \SetAlgoNoLine g_j$ is strictly bigger than 0
  (c) the new $y_i$ must allow the breaking of an $x_{i + 1}$.
 
 This algorithm can be reinterpreted as a recursive algorithm, where it is built and explored a tree with alternating trails of increasing size, when necessary the algorithm backtracks, meaning it explores other branches of the recursion tree.
@@ -95,58 +94,65 @@ In the following I explain the recursive version of LK, which is already rewritt
 In this algorithm I use sets of edges: in the following pseudo-code the ordering of the elements of sets is not important, because they are named properly, the implementation uses vectors, but the operations between sets are the same.
 
 <!-- TODO: specify what F is, and how to update it -->
-lin_kernighan(G)
 \begin{algorithm}
+  \SetKwFunction{Peek}{peek}
+  \SetKwFunction{Pop}{pop}
+  \SetKwFunction{Push}{push}
+  \SetKwFunction{Clear}{clear}
+  \KwData{A graph $G$, a tour $T$.\\The graph $G$ supports a function $V(G)$ which returns the list of nodes of $G$, moreover $c: E\to \mathbb{N}$ is a function that returns the cost of an edge.\\A stack data structure is available, it supports the usual operations such as push, pop, peek, and clear.\\
+  Parameters $p_1$, $p_2$ could be retrieved from the global context.}
+  \KwResult{An improved $T$}
+  \BlankLine
+  $s \gets$ initialize empty stack;
 
-  \SetKwFunction{Peek}{peek}\SetKwFunction{Pop}{pop}\SetKwFunction{Push}{push}
-  \SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
-  \Input{A graph $G$, a tour $T$}
-  \Output{An improved $T$}
-
-  $stack \gets \{\,\}$\;
-
-  $g^* \gets 0$; $F^* \gets \emptyset$; $F\gets\emptyset$\;
+  $G^* \gets 0$; $F^* \gets \emptyset$\tcc*[r]{best improvement and best alternating trail so far}
+  $F\gets\emptyset$\tcc*[r]{the alternating trail the algorithm is currently visiting}
   
-  \Repeat{$g^* = 0$}{
+  \Repeat{$G^* = 0$}{
     \ForEach{$u\in V(G)$ s.t. $v_i u\in T$}{
-      \Push{$stack$, $(u, 0, 0)$}\;
+      \Push{$s$, $(u, 0, 0)$}\;
     }
-    \While{$stack$ is not empty}{
-      $(v_i, i, g) \gets$ \Pop{$stack$}\;
+    \While{$s$ is not empty}{
+      $(v_i, i, g) \gets$ \Pop{$s$}\;
       $F \gets F \cup v_i$\tcc*[r]{overwrites a previous $v_i$ that could be in $F$}
-      \If{$i$ is even}{
-        \ForEach{$u\in V(G)$ s.t. $v_i u \in T\setminus F$}{
-          \If{$i\leq p_2 \vee (u v_0\notin T \cup F \cup \{v_i u\}) \wedge T\Delta (F \cup \{v_i u,  u v_0\})$ is a tour}{
-            \Push{$stack$, $(u, i + 1, g + c(v_i u))$}
+      \uIf{$i$ is even}{
+        \ForEach{$u\in V(G)$ s.t. $(v_i, u) \in T\setminus F$}{
+          \If{$i\leq p_2 \vee ((u, v_0)\notin T \cup F \cup \{(v_i, u)\}) \wedge T\Delta (F \cup \{(v_i, u),  (u, v_0)\})$ is a tour}{
+            \Push{$s$, $(u, i + 1, g + c(v_i u))$}\;
           }
         }
       }
       \Else{
-        \If{$g - c(v_i v_0)\ge g^*\wedge T\Delta (F\cup \{v_i v_0)\}$ is a tour}{
-          $F^* \gets F \cup \{v_i v_0\}$; $g^* \gets g - c(v_i v_0)$\;
-          \ForEach{$u\in V(G)$ such that $g\ge c(v_i u)\wedge v_i u\notin T\cup F$}{
-            \Push{$stack$, $(u, i + 1, g - c(v_i u))$}
+        \If{$g - c(v_i,v_0)\ge G^*\wedge T\Delta (F\cup \{(v_i, v_0)\})$ is a tour}{
+          $F^* \gets F \cup \{(v_i, v_0)\}$; $G^* \gets g - c(v_i, v_0)$\;
+          \ForEach{$u\in V(G)$ such that $g\ge c(v_i, u)\wedge (v_i, u)\notin T\cup F$}{
+            \Push{$s$, $(u, i + 1, g - c(v_i, u))$}\;
           }
         }
       }
-
       
-      
-      $(u, j, g) \gets$ \Peek{$stack$}\;
+      $(u, j, g) \gets$ \Peek{$s$}\;
       \If{$i \leq j$}{
-        \If{$g^*\ge 0$} {
-          $T \gets T \Delta F$; $stack \gets \{ \}$\;
+        \uIf{$G^*\ge 0$} {
+          $T \gets T \Delta F$; \Clear{$s$}\;
         }
         \ElseIf{$i\ge p_1$}{
-          \lForEach{$(u, j, g) \gets$\Peek{$stack$} s.t. $j\ge p_1$}{\Pop{$stack$}}
+          \lForEach{$(u, j, g) \gets$\Peek{$s$} s.t. $j\ge p_1$}{\Pop{$s$}}
         }
       }
 
     }
   }
   \Return{T}
-
+  \caption{Lin-Kernighan\label{LK}}
 \end{algorithm}
+
+### C++ implementation
+
+The C++ implementation is a straight forward implementation of the pseudo-code from \ref{LK}.
+The only things left to be specified are the data structures used, and the implementation of the function which returns whether if a given set of edges $T$ is a tour.
+
+The data structures used are the standard implementations of vector, set, and deque.
 
 ## Issues of the implementation
 

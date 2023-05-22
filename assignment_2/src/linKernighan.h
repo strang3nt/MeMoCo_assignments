@@ -6,7 +6,6 @@
 #include <deque>
 #include <algorithm>
 #include <iterator>
-#include <set>
 #include <memory>
 
 #include "trail.h"

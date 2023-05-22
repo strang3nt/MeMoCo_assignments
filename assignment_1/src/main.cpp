@@ -13,6 +13,7 @@
 #include <numeric>
 #include <execution>
 #include <tuple>
+#include <iomanip>
 
 // error  status and message buffer
 int status;
@@ -74,7 +75,7 @@ int main(int argc, char const *argv[]) {
           std::cout << filename << " TSP value: ";
           const auto results = model->solveTsp(g->N, g->c);
           std::cout << results.result << "\n";
-          myfile 
+          myfile << std::setprecision(10)
             << filename << ","
             << g->N << ","
             << g->N * g->N << ","

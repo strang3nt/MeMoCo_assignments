@@ -232,11 +232,12 @@ Note that:
 
 ## Test data
 
-I retrieved 4 test instances from [@noauthor_vlsi_nodate]. This website
-contains many instances of TSP. Each file contains a number of node coordinates, and the weight of an edge $(i,j)$ is the euclidean distance between node $i$ and $j$, in a 2d plane.
-The distance is rounded to the nearest whole value.
-
-Each initial instance was cut down to a 10, 20, 40, 60, and a 120 nodes: the goal was to have instances which could be solved by my machine in (around) 0.1 second, 1 second and under 10 seconds, and to have two more data points in order have more meaningful data.
+10x instances
+10 pts 10 x 10, 1,5
+20 pts 10 x 15, 1.5
+40 pts 20 x 15, 1.5
+80 pts 30 x 20, 2.0
+100 pts 30 x 25, 2.0
 
 <!-- TODO: new test results -->
 
