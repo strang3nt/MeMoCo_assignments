@@ -117,11 +117,8 @@ int main(int argc, char const *argv[]) {
             costs.push_back(result.result);
             cpuTimes.push_back(result.cpuTime);
           }
-          for (int i: costs) std::cout << i << " ";
-          std:: cout << "\n";
         
           auto costsMean = mean(costs);
-          std:: cout << "Mean: " << costsMean << "\n";
           auto costsStdDev = stdDev(costsMean, costs);
 
           auto cpuTimesMean = mean(cpuTimes);

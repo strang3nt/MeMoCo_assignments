@@ -63,7 +63,7 @@ int main(int argc, char const *argv[]) {
 
     std::ofstream myfile;
     
-    myfile.open ("filename_" + std::to_string(i) + ".tsp");
+    myfile.open (filename + "_" + std::to_string(i) + ".tsp");
     myfile << size_of_instance + "\n";
 
     for(int j = 1; j <= size_of_instance; ++j) {

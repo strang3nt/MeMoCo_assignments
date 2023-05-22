@@ -21,6 +21,7 @@ char errmsg[BUF_SIZE];
 
 int main(int argc, char const *argv[]) {
 
+  std::cout.precision(std::numeric_limits<double>::max_digits10 + 1);
   try {
     
     const auto parser = std::make_unique<Parser>();
