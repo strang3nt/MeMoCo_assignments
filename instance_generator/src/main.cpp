@@ -50,7 +50,16 @@ int main(int argc, char const *argv[]) {
   int number_of_instances = 0;
 
   std::cout << "Input desired size of instances, and number of random instances: ";
-  std::cin >> size_of_instance;
+
+  bool size_of_instance_too_small = true;
+  do {
+    std::cin >> size_of_instance;
+    size_of_instance_too_small = size_of_instance > (int) points.size();
+    if (size_of_instance_too_small) {
+      std::cout << "The size of the instances should be less than or equal to the points generated\n";
+    }
+  } while(size_of_instance_too_small);
+
   std::cin >> number_of_instances;
   std::string filename;
   std::cout << "Input root name of files: ";

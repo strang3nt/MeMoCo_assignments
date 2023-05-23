@@ -7,8 +7,8 @@ institute:
 - University of Padua
 date: 17 February, 2023
 abstract: |
-  The goal of this assignment is to solve
-  the Traveling Salesperson Problem (TSP) via a Mixed Integer Linear Programming model, and
+  The goal of this assignment is to solve 
+  the Traveling Salesperson Problem (TSP) for a drilling problem via a Mixed Integer Linear Programming model, and
   study up to which size the problem can be solved in different amounts of time (e.g. 0.1s, 1s, 10s,...). The implementation uses the CPLEX API.
 geometry: margin=1in
 lang: en-GB
@@ -25,8 +25,12 @@ header-includes: |
 
 # Introduction
 
+A company produces boards with holes used to build electric panels. 
+The company wants to minimize the total drilling time for each board, taking into account that the time needed for making an hole is the same and constant for
+all the holes. This is an instance of the Traveling Salesperson Problem (TSP).
+
 In this report I show an implementation of a (mixed) integer linear programming model (MILP)
-of the Traveling Salesperson Problem (TSP). The implementation is written in the 
+of the TSP. The implementation is written in the 
 C++ language and uses the CPLEX Callable Library [@noauthor_ibm_2021]. The goal is to 
 study up to which size the problem can be solved in different amounts of time: 0.1 second, 1 second, 10 seconds. 
 
@@ -80,35 +84,23 @@ Constraints:
 
 # Implementation
 
-Listing \ref{lst:projectStructure} contains the structure of the project.
+## TSP instance for the drilling problem
 
-\begin{lstlisting}[caption={Structure of project folder.},label={lst:projectStructure},style=tree]
-.
-├── Makefile
-└── src
-    ├── cpxmacro.h
-    ├── graph.h
-    ├── main.cpp
-    ├── model.cpp
-    ├── model.h
-    ├── parser.cpp
-    └── parser.h
-\end{lstlisting}
+An ad-hoc solution was created to generate realistic instances for the drilling problem.
 
-cpxmacro
+Instances are produced via a script, which is located in the folder `instance_generator` in the root of the project.
+The instance generator produces files according to the following input:
 
-: Contains useful macros for the CPLEX API. Environment and problem initialization macros, as well as a macro to make a checked call to the CPLEX API. Every call to the CPLEX API goes first through here.
+ 1. size of board, height and length
+ 2. distance between holes coordinates
+ 3. size of instance and number of instances.
 
-graph
-
-: Contains a class that represents an instance of a graph. Each graph contains its size (number of nodes) and a matrix of size $N \times N$, where $N$ is the size. Cell $(i, j)$ of the matrix contains the distance from node $i$ to node $j$. 
-
-parser
-
-: It is the definition of a class that contains a method `buildGraph`, such
-method, given a file path tries to parse such file. 
-The file must have the 
-following structure: starts with the number of nodes, and each new line contains the name of the node, the $x$ and $y$ coordinates. The output of `buildGraph` is a `Graph` instance, with the weights as the euclidean distance between the nodes. Follows an example of a file.
+The script fills a two-dimensional plane with as many coordinates as possible, distributed in a grid, where holes are separated by 
+the distance input in (2). Then it uses these coordinates to select randomly a number of points, which are then saved in a file, and
+this process is repeated with respect to the input provided in step (3).
+The files come in a `.tsp` extension, they are named with the following pattern: `userprovidedname_numberofinstance.tsp`.
+The following is an example of a file, the first line is the number of nodes, the next lines contain the number of the node,
+and its x, y coordinates in the plane:
 
 ```
 10
@@ -122,23 +114,20 @@ following structure: starts with the number of nodes, and each new line contains
 8 0 34
 9 0 37
 10 0 4
-
 ```
 
-model
+I decided to use a precision in the order of $10^{-5}$, every input is integer, as well as the distance between points, which is calculated using
+the euclidean distance, is rounded to the nearest integer.
 
-: The implementation of MILP model.
+A `.tsp` file is then parsed to a graph object, which is then used by the CPLEX API and the MILP implementation.
 
-main
-
-: Puts everything together: takes the address of a file as input, such file is parsed as a graph, the model is run against the graph, prints user time and CPU time taken to solve the model instance.
-
+> Note that a graph is supposed to be complete, each node is connected to each end every other node in the graph.
 
 ## The model implementation
 
 Files `model.h` and `model.cpp` contain the model interface and implementation, respectively. I tried to keep the implementation as close as possible to the MILP model described in [Introduction].
 
- > Note that every `NULL` field is automatically filled by a default value by the CPLEX API.
+> Note that every `NULL` field is automatically filled by a default value by the CPLEX API.
 
 ```{#lst:initYVars .c caption="Initialization of variable (7), from the MILP model."}
   for(int i = 0; i < N; ++i) {
@@ -150,7 +139,7 @@ Files `model.h` and `model.cpp` contain the model interface and implementation, 
 			CHECKED_CPX_CALL(CPXnewcols, env, lp, 1, &coef, &lb, &ub, &ytype, NULL);
     }
   }
-  ```
+```
 
 ```{#lst:initXVars .c caption={Initialization of variable (6), from the MILP model.}}
   for(int i = 0; i < N * (N - 1); ++i) {
@@ -232,12 +221,15 @@ Note that:
 
 ## Test data
 
-10x instances
-10 pts 10 x 10, 1,5
-20 pts 10 x 15, 1.5
-40 pts 20 x 15, 1.5
-80 pts 30 x 20, 2.0
-100 pts 30 x 25, 2.0
+Through the instance generator I generated 5 different types of instances:
+
+ - 10 nodes, size of two-dimensional plane $10\times 10$cm, the distance between nodes in the grid is $1,5$cm
+ - 20 nodes, $10\times 15$cm, $1,5$cm
+ - 40 nodes, $20\times 15$cm, $1,5$cm
+ - 80 nodes, $30\times 20$cm, $2,0$cm
+ - 100 nodes, $30\times 25$cm, $2,0$cm.
+
+There are 10 randomly generated instances of each size.
 
 <!-- TODO: new test results -->
 

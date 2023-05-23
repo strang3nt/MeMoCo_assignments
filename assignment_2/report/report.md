@@ -7,9 +7,8 @@ institute:
 - University of Padua
 date: 17 February, 2023
 abstract: |
-  The goal of this assignment is to solve
-  the Traveling Salesperson Problem (TSP) via either an exact approach or an heuristic,
-  and to compare its performance with a Mixed Integer Linear Programming implementation.
+  The goal of this assignment is to solve a drilling problem using the Traveling Salesperson Problem (TSP) via either an exact approach or an heuristic,
+  and to compare its performance against an implementation of a Mixed Integer Linear Programming model for TSP.
 geometry: margin=1in
 lang: en-GB
 bibliography: references.bibtex
@@ -27,16 +26,20 @@ header-includes: |
 
 # Introduction
 
+A company produces boards with holes used to build electric panels. 
+The company wants to minimize the total drilling time for each board, taking into account that the time needed for making an hole is the same and constant for
+all the holes. This is an instance of the Traveling Salesperson Problem (TSP).
+
 In this report I show the implementation of a heuristic for the Traveling Salesperson Problem (TSP).
 The heuristic is the Lin-Kernighan (LK) heuristic for TSP [@lin_effective_1973].
-LK is a very successful attempt at solving TSP: it is able to solve instances with unknown optimal solutions (as of 1971, when Lin and Kernighan wrote the paper), with near optimal results. And it was able to do so within a $O(n^{2.2})$ time complexity.
-The Lin-Kernighan heuristic is the starting point of a more advanced heuristic called Lin-Kernighan-Helsgaun. The latter is to this day one of the best performing algorithms for TSP [@HELSGAUN2000106].
+LK is a very successful attempt at solving TSP: it was able to solve instances with, at the time (1971), unknown optimal solutions, with near optimal results. And it was able to do so within a $O(n^{2.2})$ time complexity.
+The Lin-Kernighan heuristic is the starting point for a more advanced heuristic called Lin-Kernighan-Helsgaun. The latter is, to this day, one of the best performing algorithms for TSP [@HELSGAUN2000106].
 
-In the first sections of the paper I show the LK implementation. Then I compare LK with a MILP model for TSP. The comparison shows the difference in computation time, optimality of the solutions. 
+In the first section of the paper I show the LK implementation. Then I compare LK with a MILP model for TSP. The comparison shows the difference in computation time, and optimality of the solutions. 
 
 # Lin-Kernighan heuristic
 
-## Background
+## Graph-theretical background
 
 Let $G = (V, E)$ be an undirected, complete graph, where $V$ is the set of nodes, and $E$ is the set of edges where $(u, v) \in E$ is an edge.
 Let $c: E \to\mathbb{Z}$ be a total function that given an edge $(u, v)$ returns its cost.
@@ -58,7 +61,7 @@ In the algorithm I use the following notation:
  - let $g_i = c(x_i) - c(y_i)$ be the gain from exchanging $x_i$ from a tour $T$ with $y_i$.
  - all $x_i$ and $y_i$ form two sets, respectively $X$ and $Y$, with these 2 sets I can compute $G_i$ which is the sum of all the improvements of exchanging the edges, up to the $i$-th. A possible implementation of LK, could build $X$ and $Y$ as arrays of edges, that are modified multiple times during the execution of the algorithm.
 
-Many implementation details are missing, still this should be a good starting point, and a good outline of LK.
+Many implementation details are missing, still, this should be a good starting point, and a good outline of LK.
 
 1. For all $t \in T$, let $t$ be $t_1$ do:
   1. Set $G^* = 0$. For all edges adjacent to $t_1$ such that they are in the tour, let one such edge be $x_1$ and let $t_2$ be the other node. Set $i = 1$. For all $x_1$, until $G^* = 0$, do:
@@ -83,7 +86,7 @@ This algorithm can be reinterpreted as a recursive algorithm, where it is built 
 
 ### Recursive algorithm
 
-This LK pseudo-code takes inspiration from the following Wikipedia page: <https://en.wikipedia.org/wiki/Lin-Kernighan_heuristic>
+This LK pseudo-code takes inspiration from the following Wikipedia article: [@noauthor_linkernighan_2023].
 In the following I explain the recursive version of LK, which is already rewritten in its iterative version, by means of a stack. The idea is the following:
 
  - start from a tour $T$
@@ -160,7 +163,9 @@ The data structures used are the standard implementations of vector, set, and de
 
 2. Optimizations from the original LK paper are missing.
 
-3. I did not take into account space complexity: when LK was published it was a problem, and instances with sizes above 100 were a problem. As of now, storage utilization is certainly not the first concern. A possible solution, that would reduce storage utilization, while not increasing the complexity of the implementation, is the use of persistent data structures [@driscoll-1986]. Persistent data structures would allow having multiple versions of the same data structure, without having copies of such data structures. C++ offers persistent data structures only through third party libraries.
+3. I did not take into account space complexity: when LK was published it was a problem, and instances with sizes above 100 were a problem. As of now, storage utilization is certainly not the first concern. A possible solution, that would reduce storage utilization, while not increasing the complexity of the implementation, is to use persistent data structures [@driscoll-1986]. Persistent data structures would allow having multiple versions of the same data structure, without having copies of such data structures. C++ offers persistent data structures only through third party libraries.
+
+# MILP TSP
 
 # Tests
 
