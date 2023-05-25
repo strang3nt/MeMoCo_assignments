@@ -65,7 +65,7 @@ int main(int argc, char const *argv[]) {
 
       std::ofstream myfile;
       myfile.open ("tsp_results.csv");
-      myfile << "Instance,Nodes,Edges,Result,User time,CPU time\n";
+      myfile << "instance,nodes,result,userTime,cpuTime\n";
 
       std::for_each(
         graphs.begin(),
@@ -79,7 +79,6 @@ int main(int argc, char const *argv[]) {
           myfile << std::setprecision(10)
             << filename << ","
             << g->N << ","
-            << g->N * g->N << ","
             << results.result << ","
             << results.userTime << ","
             << results.cpuTime << "\n";

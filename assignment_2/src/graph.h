@@ -8,7 +8,7 @@
 
 struct Graph {
 
-  // number of edges
+  // number of nodes
   const int N;
 
   // weights of the edges c(i, j) <==> c[i][j]

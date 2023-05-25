@@ -100,7 +100,7 @@ int main(int argc, char const *argv[]) {
 	  
       std::ofstream myfile;
       myfile.open ("tsp_results.csv");
-      myfile << "Instance,Min cost,Max cost,Mean cost,Std dev cost,Min CPU time,Max CPU time,Mean CPU time,Std dev CPU time\n";
+      myfile << "instance,nodes,minCost,maxCost,meanCost,stdDevCost,minCpuTime,maxCpuTime,meanCpuTime,stdDevCpuTime\n";
 
       std::for_each(
         graphs.cbegin(),
@@ -131,6 +131,7 @@ int main(int argc, char const *argv[]) {
 
           /**
            * Instance,
+           * Nodes,
            * Min cost,
            * Max cost,
            * Mean cost,
@@ -143,6 +144,7 @@ int main(int argc, char const *argv[]) {
           std::cout << filename << " TSP value: " << *minCost << "\n";
           myfile << std::setprecision(10)
             << filename << ","
+            << g.N << ","
             << *minCost << ","
             << *maxCost << ","
             << costsMean << ","
