@@ -141,7 +141,7 @@ Files `model.h` and `model.cpp` contain the model interface and implementation, 
   }
 ```
 
-```{#lst:initXVars .c caption={Initialization of variable (6), from the MILP model.}}
+```{#lst:initXVars .c caption="Initialization of variable (6), from the MILP model."}
   for(int i = 0; i < N * (N - 1); ++i) {
       CHECKED_CPX_CALL(CPXnewcols, env, lp, 1, NULL, NULL, NULL, NULL, NULL);
   }
@@ -235,13 +235,13 @@ There are 10 randomly generated instances of each size.
 
 ## Test results
 
-> Tests were executed on a linux laptop, with 8gb of ram and a 6 cores, 12 threads CPU, with a local CPLEX install.
+> The benchmark suite was executed on a laptop equipped with linux, with 8gb of ram, a 6 cores, 12 threads CPU, a local CPLEX install.
 
 Table \ref{tab:results} shows user and CPU time of the different instances.
-The user time is the time the test took to complete.
+The user time is the time it took to obtain a solution for an instance.
 The CPU time is the time the test took to complete, taking into account all cores time of use:
 CPLEX uses multi-threading to solve linear programming problems, CPU time can be thought as
-the total time it could take if the test was run on a single-core CPU.
+the total amount of time it would take if the test was executed on a single-core CPU.
 
 | instance | nodes | result | userTime | cpuTime |
 | --- | --- | --- | --- | --- |
@@ -299,34 +299,38 @@ the total time it could take if the test was run on a single-core CPU.
 : Run-time  and results of the instances tested. The table displays the weight of the TSP tour, the user time
 and the CPU time, in seconds. \label{tab:results}
 
-| Nodes | UserTime | CPU time | Relative std dev |
+| Nodes | UserTime | CPU time | Relative std dev w.r.t CPU time |
 | --- | --- | --- | --- |
 | 10 | 0,04116 | 0,18576 | 36,14140% |
-| 20 | 0,23735 | 1,86966 | 47,43427% |
-| 40 | 2,12500 | 0,86230 | 53,05066% |
-| 80 | 36,73322 | 308,58512 | 73,00994% |
-| 100 | 160,56032 | 1484,54817 | 64,80369% |
+| 20 | 0,23735 | 1,86966 | 47,43427% | 
+| 40 | 2,12500 | 19,29770 | 53,05066% | 17.43
+| 80 | 36,73322 | 308,58512 | 73,00994% | 289.29
+| 100 | 160,56032 | 1484,54817 | 64,80369% | 1175.96
 
-: Run-time of the instances tested, grouped by size. For each size the average of user time, and the CPU time is displayed, in seconds. User time and CPU time were rounded to the 4th decimal. \label{tab:resultsAverage}
+: Run-time of the instances tested, grouped by size. For each size the average of user time, and the CPU time is displayed, in seconds. The table displays the standard deviation of the CPU time. Non integer values are rounded to the 5th decimal. \label{tab:resultsAverage}
 
 Table \ref{tab:resultsAverage} shows the average CPU and user time per instance size: we can now answer the initial question. Note that, by comparing tables \ref{tab:results} with the latter,
-completion times between instances with the same size differ, sometimes by a lot:
-take for example xqf060 and pma060. The answer, with respect to the user time:
+completion times between instances with the same size differ, sometimes by a considerable amount:
+take for example `100_l_6` and `100_l_9`. The answer, with respect to the user time:
 
- - the MILP implementation is definitely able to solve a 10 nodes instance in under 0.1 seconds,
- and some of the 20 nodes implementations as well
- - only some of the 40 nodes instances can be solved in less than a second
- - only some of the 60 nodes instances can be solved in less than 10 seconds.
+ - the MILP implementation is definitely able to solve a 10 nodes instance in under 0.1 seconds
+ - only some of the 40 nodes instances can be solved in less than a second, and comfortably under 10 seconds
+ - doubling the size of the instance more than doubles the amount of time thus, an instance of size of 80 nodes can be solved in less than 100 seconds.
 
-It is interesting to notice that the CPU time starts with (roughly) a 1 to 5 ratio, the user time is 5 times smaller than the CPU time, and ends with a 1 to 9 ratio: multi-threading becomes more and more an important the bigger the instances are.
-When considering the CPU time, clearly none of the 10 nodes instances can be solved in less than .1 seconds, but all of them, along with some with a size of 20, can be solved within less than a second. Only some instances with a size of 40 can be solved in less than 10 seconds.
+Note that there might be instances of size 40 that take more than 10 seconds to solve and size 80 that take more than 100 seconds to solve, that is because the CPLEX solver explores the solution space differently for each instance.
 
-<!-- graph 1 shows the exponential nature of MILP (with respect to time complexity.)  -->
+It is interesting to notice that the CPU time starts with (roughly) a 1 to 5 ratio, with respect to the user time, and ends with a 1 to 9 ratio: multi-threading becomes more and more an important the bigger the instances are.
+
+![A logarithmic scale graph that shows user time and CPU time of obtaining a solution for TSP, plotted against the number of nodes of the instances.\label{img:timePlotLog}](src/cpuAndUserTimeLog.pdf)
+
+![A graph that shows user time and CPU time of obtaining a solution for TSP, plotted against the number of nodes of the instances.\label{img:timePlotLog}](src/cpuAndUserTime.pdf)
+
+\ref{img:timePlotLog} is a scatter plot, with a trend line, calculated via LOESS (LOcally Estimated Scatterplot Smoothing) which approximates the values for each x coordinate. Essentially, the y coordinate is the average of the CPU and user time obtained. The plot is in logarithmic scale, which allows me to see the exponential nature of a MILP approach, the curve slows down in its growth towards the end, thus I cannot definitely say that the complexity of this MILP implementation is exponential. It is also interesting to notice that the trend line for the user time show the same behavior, but with a slightly less steep growth, which can be better visualized in the linear scale version of the graph, \ref{img:timePlot}.
 
 # Conclusion
 
 In this brief report I showed a in implementation of a MILP model for the TSP, such implementation finds an optimal answer in exponential time complexity, or a very 
-high degree polynomial time complexity, it depends on the CPLEX implementation and the optimizations it applies. 
+high degree polynomial time complexity. 
 
 
 # References

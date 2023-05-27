@@ -173,7 +173,7 @@ The data structures used are the standard implementations of vector, set, and de
 
 ## Test results
 
-| instance | nodes | minCost | maxCost | Exact cost | Relative error (percentage) | Relative std | meanCpuTime |
+| instance | nodes | minCost | maxCost | Exact cost | Relative error (percentage) | Relative std time | meanCpuTime |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 010_s_0 | 10 | 25.167 | 25.167 | 25.167 | 0,00000% | 0,00000% | 0,00135 |
 | 010_s_1 | 10 | 22.416 | 22.416 | 22.416 | 0,00000% | 0,00000% | 0,00075 |
@@ -226,9 +226,9 @@ The data structures used are the standard implementations of vector, set, and de
 | 100_l_8 | 100 | 236.460 | 244.408 | 233.044 | 1,46582% | 0,95200% | 0,38117 |
 | 100_l_9 | 100 | 236.204 | 242.576 | 234.676 | 0,65111% | 0,81327% | 0,41010 |
 
-: The table displays the min, max, exact cost obtained by running the algorithm Lin-Kernighan 10 times for each instance. It shows relative standard deviation, and relative error, with respect to the cost, and the exact cost, respectively. The table contains data about running times as well, in seconds.\label{tab:results}
+: The table displays the min, max, exact cost obtained by running the algorithm Lin-Kernighan 10 times for each instance. It shows relative standard deviation, and relative error, with respect to the cost, and the exact cost, respectively. The table contains data about running times, in seconds.Non integer values are rounded to the 5th decimal.\label{tab:results}
 
-| Nodes | Mean cpu time | Mean relative error | Max relative error | Relative std dev cpu time |
+| Nodes | Mean cpu time | Mean relative error | Max relative error | Relative std dev CPU time |
 | --- | --- | --- | --- | --- |
 | 10 | 0,00085 | 0,00000% | 0,00000% | 0,47178 |
 | 20 | 0,00556 | 0,00000% | 0,00000% | 0,50771 |
@@ -236,8 +236,16 @@ The data structures used are the standard implementations of vector, set, and de
 | 80 | 0,25349 | 0,54824% | 1,73506% | 0,28946 |
 | 100 | 0,48581 | 0,90406% | 1,46582% | 0,16745 |
 
-: Running times  and results of the instances tested, grouped by size of instance, using the Lin-Kernighan heuristic implementation. The table displays the mean and max relative error, with respect to the exact solutions obtained via MILP, and the mean CPU time.
-and the CPU time, in seconds. \label{tab:results-summary}
+: Running times  and results of the instances tested, grouped by size of instance, using the Lin-Kernighan heuristic implementation. The table displays the mean and max relative error, with respect to the exact solutions obtained via MILP, the mean CPU time, in seconds, and the relative standard deviation of the CPU time. \label{tab:results-summary}
+
+
+![A graph that represents the behavior of LK with respect to CPU time, in seconds, grouped by number of nodes.](src/cpuTimeNodes.pdf)
+
+![A graph that represents the CPU time of both LK and MILP implementation, in logarithmic scale, grouped by nodes.](src/cpuTimeNodesMerge.pdf)
+
+![A graph that represents the CPU time of LK and user time of MILP, in seconds, grouped by number of nodes.](src/cpuAndUserTimeNodesMerge.pdf)
+
+![A graph that represents the relative standard deviation of cost, grouped by number of nodes.](src/relStdDev.pdf)
 
 # Conclusion
 
