@@ -1,6 +1,6 @@
 # library
 library(ggplot2)
-
+library(patchwork)
 # basic scatterplot
 data <- read.csv('tsp_results.csv', colClasses=c(nodes="character"))
 
@@ -26,7 +26,8 @@ base_breaks <- function(n = 10){
 ggplot(visual, aes(x=factor(nodes, level=c('10', '20', '40', '80', '100')), y=time, group=Mode, col=Mode, fill=Mode)) +
     scale_x_discrete("Nodes")+
     geom_point() +
-    ggtitle("User time and CPU time against Nodes") +
+    ggtitle("Execution time, log scale") +
+    # ggtitle("Execution time") +
     ylab("Time (seconds)") +
-    # scale_y_log10(breaks = base_breaks(), labels = prettyNum) +
+    scale_y_log10(breaks = base_breaks(), labels = prettyNum) +
     geom_smooth()

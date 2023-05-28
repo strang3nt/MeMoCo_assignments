@@ -243,8 +243,8 @@ The CPU time is the time the test took to complete, taking into account all core
 CPLEX uses multi-threading to solve linear programming problems, CPU time can be thought as
 the total amount of time it would take if the test was executed on a single-core CPU.
 
-| instance | nodes | result | userTime | cpuTime |
-| --- | --- | --- | --- | --- |
+| Instance | Nodes | Result | User time (seconds) | CPU time (seconds) |
+| :--- | ---: | ---: | ---: | ---: |
 | 010_s_0 | 10 | 25.167 | 0,04076 | 0,14415 |
 | 010_s_1 | 10 | 22.416 | 0,03748 | 0,15791 |
 | 010_s_2 | 10 | 29.489 | 0,03324 | 0,17605 |
@@ -299,8 +299,8 @@ the total amount of time it would take if the test was executed on a single-core
 : Run-time  and results of the instances tested. The table displays the weight of the TSP tour, the user time
 and the CPU time, in seconds. \label{tab:results}
 
-| Nodes | UserTime | CPU time | Relative std dev w.r.t CPU time |
-| --- | --- | --- | --- |
+| Nodes | User time (seconds) | CPU time (seconds) | Relative std dev w.r.t CPU time |
+| :--- | ---: | ---: | ---: |
 | 10 | 0,04116 | 0,18576 | 36,14140% |
 | 20 | 0,23735 | 1,86966 | 47,43427% | 
 | 40 | 2,12500 | 19,29770 | 53,05066% | 17.43
@@ -323,14 +323,14 @@ It is interesting to notice that the CPU time starts with (roughly) a 1 to 5 rat
 
 ![A logarithmic scale graph that shows user time and CPU time of obtaining a solution for TSP, plotted against the number of nodes of the instances.\label{img:timePlotLog}](src/cpuAndUserTimeLog.pdf)
 
-![A graph that shows user time and CPU time of obtaining a solution for TSP, plotted against the number of nodes of the instances.\label{img:timePlotLog}](src/cpuAndUserTime.pdf)
+![A graph that shows user time and CPU time of obtaining a solution for TSP, plotted against the number of nodes of the instances.\label{img:timePlot}](src/cpuAndUserTime.pdf)
 
 \ref{img:timePlotLog} is a scatter plot, with a trend line, calculated via LOESS (LOcally Estimated Scatterplot Smoothing) which approximates the values for each x coordinate. Essentially, the y coordinate is the average of the CPU and user time obtained. The plot is in logarithmic scale, which allows me to see the exponential nature of a MILP approach, the curve slows down in its growth towards the end, thus I cannot definitely say that the complexity of this MILP implementation is exponential. It is also interesting to notice that the trend line for the user time show the same behavior, but with a slightly less steep growth, which can be better visualized in the linear scale version of the graph, \ref{img:timePlot}.
 
 # Conclusion
 
-In this brief report I showed a in implementation of a MILP model for the TSP, such implementation finds an optimal answer in exponential time complexity, or a very 
-high degree polynomial time complexity. 
+In this brief report I showed a in implementation of a MILP model for the TSP, such implementation finds an optimal answer in exponential time complexity, or a very high degree polynomial time complexity. 
+The implementation uses CPLEX, which is among the best commercial linear programming solvers. Execution times rise quickly until it becomes unfeasible to use a solver to obtain an exact result. The solution is to use an ad-hoc solver, like Concorde [@noauthor_concorde_nodate], which provides faster execution times, or a heuristic, which provides even faster execution times, but solutions that are not necessarily exact.
 
 
 # References
