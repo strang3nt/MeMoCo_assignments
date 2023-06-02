@@ -69,12 +69,38 @@ int main(int argc, char const *argv[]) {
     if (argc >= 2) {
       const auto &graph = parser->buildGraph("../tsp_instances/" + std::string(argv[1]));
       std::cout<< "Parsed graph of size " << graph.N << "\n";
-      
-      const auto &results = runLK(linKernighan, graph);
 
-      std::cout << "Tour cost: " << results.result << "\n"
-                << "User time (seconds): " <<  results.userTime << "\n"
-                << "CPU time (seconds): " << results.cpuTime << "\n";
+      std::vector<int> costs;
+      std::vector<double> cpuTimes;
+      for(int i = 0; i < 10; ++i) {
+          const auto result = runLK(linKernighan, graph);
+          costs.push_back(result.result);
+          cpuTimes.push_back(result.cpuTime);
+        }
+      
+        auto costsMean = mean(costs);
+        auto costsStdDev = stdDev(costsMean, costs);
+
+        auto cpuTimesMean = mean(cpuTimes);
+        auto cpuTimesStdDev = stdDev(cpuTimesMean, cpuTimes);
+
+        auto minCost = std::min_element(costs.begin(), costs.end());
+        auto maxCost = std::max_element(costs.begin(), costs.end());
+        auto minCpuTime = std::min_element(cpuTimes.begin(), cpuTimes.end());
+        auto maxCpuTime = std::max_element(cpuTimes.begin(), cpuTimes.end());
+
+        std::cout << std::string(argv[1]) << " TSP value: " << *minCost << "\n";
+        std::cout << std::setprecision(10)
+          << std::string(argv[1]) << ","
+          << graph.N << ","
+          << *minCost << ","
+          << *maxCost << ","
+          << costsMean << ","
+          << costsStdDev << ","
+          << *minCpuTime << ","
+          << *maxCpuTime << ","
+          << cpuTimesMean << ","
+          << cpuTimesStdDev << "\n";
 
     } else {
 
@@ -144,7 +170,7 @@ int main(int argc, char const *argv[]) {
           std::cout << filename << " TSP value: " << *minCost << "\n";
           myfile << std::setprecision(10)
             << filename << ","
-            << g.N << ","
+            << g->N << ","
             << *minCost << ","
             << *maxCost << ","
             << costsMean << ","

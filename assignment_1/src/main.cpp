@@ -1,5 +1,6 @@
 #include "parser.h"
 #include "model.h"
+#include "cpxmacro.h"
 
 #include <ctime>
 #include <sys/time.h>
@@ -27,6 +28,7 @@ int main(int argc, char const *argv[]) {
     const auto parser = std::make_unique<Parser>();
     
     DECL_ENV(env);
+    CPXsetdblparam (env, CPXPARAM_TimeLimit, 1000);
     const auto model = std::make_unique<Model>(env);
 
     if (argc >= 2) {

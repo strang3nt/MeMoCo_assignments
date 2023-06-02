@@ -14,13 +14,7 @@ geometry: margin=1in
 lang: en-GB
 bibliography: references.bibtex
 colorlinks: yes
-header-includes: |
-  \lstdefinestyle{tree}{
-    literate=
-    {├}{{\smash{\raisebox{-1ex}{\rule{1pt}{\baselineskip}}}\raisebox{0.5ex}{\rule{1ex}{1pt}}}}1 
-    {─}{{\raisebox{0.5ex}{\rule{1.5ex}{1pt}}}}1 
-    {└}{{\smash{\raisebox{0.5ex}{\rule{1pt}{\dimexpr\baselineskip-1.5ex}}}\raisebox{0.5ex}{\rule{1ex}{1pt}}}}1 
-  }
+codeBlockCaptions: True
 ...
 
 # Introduction
@@ -34,8 +28,9 @@ of the TSP. The implementation is written in the
 C++ language and uses the CPLEX Callable Library [@noauthor_ibm_2021]. The goal is to 
 study up to which size the problem can be solved in different amounts of time: 0.1 second, 1 second, 10 seconds. 
 
-Follows a description of the model and its implementation.
-Section [Tests] contains a description of the instances used and a study of the model's behavior under different sizes of problems.
+In the following I show a description of the model. Then [TSP instance for the drilling problem] describes
+the how I generated instances for this particular instance of TSP.
+Section [Tests] contains a description of the instances used and a study of the implementation's behavior under different sizes of problems.
 
 # MILP model
 
@@ -82,13 +77,12 @@ Constraints:
   y_{ij} \in \{0,1\} & && \forall (i,j)\in A.
 \end{align}
 
-# Implementation
+# TSP instances for the drilling problem
 
-## TSP instance for the drilling problem
+## Generation of instances
 
 An ad-hoc solution was created to generate realistic instances for the drilling problem.
-
-Instances are produced via a script, which is located in the folder `instance_generator` in the root of the project.
+Instances are produced via a script.
 The instance generator produces files according to the following input:
 
  1. size of board, height and length
@@ -123,99 +117,16 @@ A `.tsp` file is then parsed to a graph object, which is then used by the CPLEX 
 
 > Note that a graph is supposed to be complete, each node is connected to each end every other node in the graph.
 
-## The model implementation
+## A solution for the TSP drilling problem
 
-Files `model.h` and `model.cpp` contain the model interface and implementation, respectively. I tried to keep the implementation as close as possible to the MILP model described in [Introduction].
+The results are euclidean distances, which is not a correct answer for the question at hand, 
+which is how much time it takes for a mechanical arm to drill
+a board. I decided to use distances nonetheless, since they can be easily converted to
+time measures, once the drilling speed and the speed of movement of the arm is known.
 
-> Note that every `NULL` field is automatically filled by a default value by the CPLEX API.
-
-```{#lst:initYVars .c caption="Initialization of variable (7), from the MILP model."}
-  for(int i = 0; i < N; ++i) {
-    for(int j = 0; j < N; ++j) {
-			char ytype = 'B';
-			double lb = 0.0;
-			double ub = 1.0;
-      double coef = i == j ? CPX_INFBOUND : c[i][j];
-			CHECKED_CPX_CALL(CPXnewcols, env, lp, 1, &coef, &lb, &ub, &ytype, NULL);
-    }
-  }
-```
-
-```{#lst:initXVars .c caption="Initialization of variable (6), from the MILP model."}
-  for(int i = 0; i < N * (N - 1); ++i) {
-      CHECKED_CPX_CALL(CPXnewcols, env, lp, 1, NULL, NULL, NULL, NULL, NULL);
-  }
-```
-
-Listings \ref{lst:initYVars} and \ref{lst:initXVars} contain the initialization of the variables, (6) and (7) from the model, respectively.
-Note that:
-
- - each $y_{i,j}$ variable is coupled with its weight, $c_{i,j}$, the weight $c_{i,i}$ is replaced by an infinite value, that is because otherwise the model considers the edge $(i,i)$ while building the hamiltonian cycle ($c_{i,i} = 0$, since the distance between node $i$ and node $i$ is $0$)
- - constraint (6) describes $x_{i,j}$ as a positive, real, number coupled with each edge in $A$, except for $(i,j), j = 0$, thus I initialized $N * (N - 1)$ variables, which are variables $x_{0,1}, x_{0,2}, ..., x_{1,1},..., x_{|N| - 1, |N| - 1}$
- - the default values for type and bounds of a variable create a continuous number, bounded between zero and infinite.
-
-```{#lst:firstConstraint .c caption="Creation of the first constraint, it's (2) in the model definition in the introduction."}
-  for(int k = 0; k < N - 1; ++k) {
-    std::vector<int> idx;
-    std::vector<double> coef;
-    for(int i = 0; i < N; ++i) { // x_i_k
-      if(k + 1 != i) {
-        idx.push_back(N * N + i * (N - 1) + k);
-        coef.push_back(1.0);
-      }
-    }
-    for(int j = 0; j < N - 1; ++j) { // x_k_j
-      if(k != j) {
-        idx.push_back(N * N + (k + 1) * (N - 1) + j);
-        coef.push_back(-1.0);
-      }
-    }
-    double rhs = 1.0;
-    int matbeg = 0;
-    CHECKED_CPX_CALL(CPXaddrows, env, lp, 0, 1, idx.size(), &rhs, NULL, &matbeg, &idx[0], &coef[0], NULL, NULL);
-  }
-```
-
-```{#lst:secondConstraint .c caption="Constraint (3) from the model definition in the introduction."}
-  for(int i = 0; i < N; ++i) {
-    std::vector<int> idx(N);
-    for(int j = 0; j < N; ++j) { // y_i_j 
-      idx[j] = i * N + j;
-    }
-    std::vector<double> coef(N, 1.0);
-    double rhs = 1.0;
-    int matbeg = 0;
-    CHECKED_CPX_CALL(CPXaddrows, env, lp, 0, 1, idx.size(), &rhs, NULL, &matbeg, &idx[0], &coef[0], NULL, NULL);
-  }
-```
-
-```{#lst:thirdConstraint .c caption="Constraint (4) from the model definition in the introduction."}
-  for(int j = 0; j < N; ++j) {
-    std::vector<int> idx(N);
-    for(int i = 0; i < N; ++i) { // y_i_j 
-      idx[i] = i * N + j;
-    }
-    std::vector<double> coef(N, 1.0);
-    double rhs = 1.0;
-    int matbeg = 0;
-    CHECKED_CPX_CALL(CPXaddrows, env, lp, 0, 1, idx.size(), &rhs, NULL, &matbeg, &idx[0], &coef[0], NULL, NULL);
-  }
-```
-
-```{#lst:fourthConstraint .c caption="Constraint (5) from the model definition in the introduction."}
-  for (int i = 0; i < N; ++i) {
-		for (int j = 1; j < N; ++j) {
-			std::vector<int> idx(2);
-      idx[0] = i * N + j; // y_i_j
-			idx[1] = N * N + i * (N - 1) + j - 1; // x_i_j
-			std::vector<double> coef(2, 1.0);
-			coef[0] = - N + 1.0;
-			char sense = 'L';
-			int matbeg = 0;
-			CHECKED_CPX_CALL(CPXaddrows, env, lp, 0, 1, idx.size(), NULL, &sense, &matbeg, &idx[0], &coef[0], NULL, NULL);
-		}
-	}
-```
+The unit of measure is $10^{-5}$ meters, which is probably more precise than a real drilling machine would support.
+Values are integers.
+For example if a solution is $25.167$, it means that the length of the best possible hamiltonian path is $25,167$ centimeters.
 
 # Tests
 
@@ -231,8 +142,6 @@ Through the instance generator I generated 5 different types of instances:
 
 There are 10 randomly generated instances of each size.
 
-<!-- TODO: new test results -->
-
 ## Test results
 
 > The benchmark suite was executed on a laptop equipped with linux, with 8gb of ram, a 6 cores, 12 threads CPU, a local CPLEX install.
@@ -243,7 +152,7 @@ The CPU time is the time the test took to complete, taking into account all core
 CPLEX uses multi-threading to solve linear programming problems, CPU time can be thought as
 the total amount of time it would take if the test was executed on a single-core CPU.
 
-| Instance | Nodes | Result | User time (seconds) | CPU time (seconds) |
+| Instance | Nodes | Result | User time (s) | CPU time (s) |
 | :--- | ---: | ---: | ---: | ---: |
 | 010_s_0 | 10 | 25.167 | 0,04076 | 0,14415 |
 | 010_s_1 | 10 | 22.416 | 0,03748 | 0,15791 |
@@ -299,15 +208,15 @@ the total amount of time it would take if the test was executed on a single-core
 : Run-time  and results of the instances tested. The table displays the weight of the TSP tour, the user time
 and the CPU time, in seconds. \label{tab:results}
 
-| Nodes | User time (seconds) | CPU time (seconds) | Relative std dev w.r.t CPU time |
+| Nodes | User time (s) | CPU time (s) | Std dev of CPU time (%) |
 | :--- | ---: | ---: | ---: |
-| 10 | 0,04116 | 0,18576 | 36,14140% |
-| 20 | 0,23735 | 1,86966 | 47,43427% | 
-| 40 | 2,12500 | 19,29770 | 53,05066% | 17.43
-| 80 | 36,73322 | 308,58512 | 73,00994% | 289.29
-| 100 | 160,56032 | 1484,54817 | 64,80369% | 1175.96
+| 10 | 0,04116 | 0,18576 | 36,14% |
+| 20 | 0,23735 | 1,86966 | 47,43% | 
+| 40 | 2,12500 | 19,29770 | 53,05% |
+| 80 | 36,73322 | 308,58512 | 73,00% |
+| 100 | 160,56032 | 1484,54817 | 64,80% |
 
-: Run-time of the instances tested, grouped by size. For each size the average of user time, and the CPU time is displayed, in seconds. The table displays the standard deviation of the CPU time. Non integer values are rounded to the 5th decimal. \label{tab:resultsAverage}
+: Run-time of the instances tested, grouped by size. For each size the average of user time, and the CPU time is displayed, in seconds. The table displays the standard deviation of the CPU time. \label{tab:resultsAverage}
 
 Table \ref{tab:resultsAverage} shows the average CPU and user time per instance size: we can now answer the initial question. Note that, by comparing tables \ref{tab:results} with the latter,
 completion times between instances with the same size differ, sometimes by a considerable amount:

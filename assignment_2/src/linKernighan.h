@@ -53,7 +53,7 @@ class LinKernighan {
               alternatingTrailPairwise->insert(yi);
               const auto& symDiff = tour->trailSymmetricDifference(*alternatingTrailPairwise.get());
 
-              if(i <= p2 || (!union_->contains(yi) && symDiff->isTour(g.N))) {
+              if(i <= p2 || (!union_->contains(yi) && symDiff->isTour())) {
                 stack.push_front({u, i + 1, gi + weight.at(vi).at(u)});
               }
               alternatingTrailPairwise->erase(xi);
@@ -71,7 +71,7 @@ class LinKernighan {
           alternatingTrailPairwise->insert(endNode);
           const auto& symDiff = tour->trailSymmetricDifference(*alternatingTrailPairwise.get());
           
-          if (candidateG > 0 && candidateG > G && symDiff->isTour(g.N)) {
+          if (candidateG > 0 && candidateG > G && symDiff->isTour()) {
             F = std::make_unique<Trail>(*alternatingTrailPairwise.get()); // copy constructor
             G = candidateG;
           }

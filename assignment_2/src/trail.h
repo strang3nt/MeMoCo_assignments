@@ -15,24 +15,24 @@
 
 class Trail {
 
-  std::set<std::tuple<int, int>> alternatingTrail;
+  std::set<std::tuple<int, int>> edges;
 
   public:
-    Trail(const std::set<std::tuple<int, int>>& _alternatingTrail): alternatingTrail(_alternatingTrail) {}
+    Trail(const std::set<std::tuple<int, int>>& _alternatingTrail): edges(_alternatingTrail) {}
 
-    Trail(const std::vector<int>& alternatingTrail, int i) {
+    Trail(const std::vector<int>& edges, int i) {
     std::set<std::tuple<int, int>> alternatingTrailPairwise;
       for(int x = 0; x <= i - 1; x++) {
-        alternatingTrailPairwise.insert(makeTuple(alternatingTrail.at(x), alternatingTrail.at(x + 1)));
+        alternatingTrailPairwise.insert(makeTuple(edges.at(x), edges.at(x + 1)));
       }
-      this->alternatingTrail = alternatingTrailPairwise;
+      this->edges = alternatingTrailPairwise;
     }
 
-    Trail(): alternatingTrail(std::set<std::tuple<int,int>>()) {}
+    Trail(): edges(std::set<std::tuple<int,int>>()) {}
 
     int cost(const Graph& g) const {
       int sum = 0;
-      for(const auto &[x, y]: this->alternatingTrail) {
+      for(const auto &[x, y]: this->edges) {
         sum += g.c[x][y];
       }
       return sum;
@@ -61,54 +61,53 @@ class Trail {
       return u > v ? std::make_tuple(v, u) : std::make_tuple(u, v);
     }
 
-    bool isTour(int n) const {
+    bool isTour() const {
 
-      std::vector<bool> visited(n, false);
+      std::vector<bool> visited(edges.size(), false);
       
       int j = 0;
-      
+      int n = edges.size();
       for(int s = 0; s < n; ++s) {
         // find the successor of j I did not visit
         const auto& it = std::find_if(
-          this->alternatingTrail.begin(),   
-          this->alternatingTrail.end(),
-          [s, j, &visited, n](const auto& edge){ 
+          this->edges.begin(),   
+          this->edges.end(),
+          [s, j, &visited, &n](const auto& edge){ 
             const auto [x, y] = edge;
             int i = j == x ? y : x;
             return (x == j || y == j) && (!visited.at(i) || (s == n - 1 && i == 0)); });
-        if(it != this->alternatingTrail.end()) {
+        if(it != this->edges.end()) {
           visited.at(j) = true;
           const auto [x, y] = *it;
           j = x == j ? y : x;
         }
       }
-      
       return std::find(visited.begin(), visited.end(), false) == visited.end();
     }
 
     int size() {
-      return this->alternatingTrail.size();
+      return this->edges.size();
     } 
 
     bool contains(const std::tuple<int, int>& i) const {
-      return alternatingTrail.find(i) != alternatingTrail.end();
+      return edges.find(i) != edges.end();
     }
 
     void insert(const std::tuple<int, int>& i) {
-      alternatingTrail.insert(i);
+      edges.insert(i);
     }
 
     void erase(const std::tuple<int, int>& i) {
-      alternatingTrail.erase(i);
+      edges.erase(i);
     }
 
     std::unique_ptr<Trail> trailUnion(const Trail& otherTrail) const {
       std::set<std::tuple<int, int>> result;
       std::set_union(
-        this->alternatingTrail.begin(), 
-        this->alternatingTrail.end(), 
-        otherTrail.alternatingTrail.begin(), 
-        otherTrail.alternatingTrail.end(), 
+        this->edges.begin(), 
+        this->edges.end(), 
+        otherTrail.edges.begin(), 
+        otherTrail.edges.end(), 
         std::inserter(result, result.begin())); 
       auto trailPtr = std::make_unique<Trail>(result);
       return trailPtr;
@@ -117,10 +116,10 @@ class Trail {
     std::unique_ptr<Trail> trailDifference(const Trail& otherTrail) const {
       std::set<std::tuple<int, int>> result;
       std::set_difference(
-        this->alternatingTrail.begin(), 
-        this->alternatingTrail.end(), 
-        otherTrail.alternatingTrail.begin(), 
-        otherTrail.alternatingTrail.end(), 
+        this->edges.begin(), 
+        this->edges.end(), 
+        otherTrail.edges.begin(), 
+        otherTrail.edges.end(), 
         std::inserter(result, result.begin())); 
       auto trailPtr = std::make_unique<Trail>(result);
       return trailPtr;
@@ -129,10 +128,10 @@ class Trail {
     std::unique_ptr<Trail> trailSymmetricDifference(const Trail& otherTrail) const {
       std::set<std::tuple<int, int>> result;
       std::set_symmetric_difference(
-        this->alternatingTrail.begin(), 
-        this->alternatingTrail.end(), 
-        otherTrail.alternatingTrail.begin(), 
-        otherTrail.alternatingTrail.end(), 
+        this->edges.begin(), 
+        this->edges.end(), 
+        otherTrail.edges.begin(), 
+        otherTrail.edges.end(), 
         std::inserter(result, result.begin())); 
       auto trailPtr = std::make_unique<Trail>(result);
       return trailPtr;
