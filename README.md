@@ -4,7 +4,12 @@ This repository contains solutions for the 2 assignments of the MeMoCo
 course from the Master's degree in Computer Science at Unipd.
 
 The first assignment uses [IBM ILOG CPLEX](https://www.ibm.com/analytics/cplex-optimizer) C APIs, it solves a set of TSP instances via linear programming.
-The second assignment uses a heuristic to solve the same set of instances. 
+The second assignment uses a heuristic to solve the same set of instances.
+
+TSP is a generalization of the problem I actually want to solve: a drilling problem.
+In particular I want to know how much time I need to drill a board for an electronic panel,
+considering that the drilling arm moves at a constant speed, and the the time needed for making an hole 
+is the same and constant for each and every hole.
 
 ## First assignment
 
