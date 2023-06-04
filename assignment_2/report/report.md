@@ -19,6 +19,7 @@ header-includes: |
   \def\fps@figure{H}
   \makeatother
 codeBlockCaptions: True
+link-citations: True
 ...
 
 # Introduction
@@ -236,24 +237,17 @@ class Trail {
 
   public:
     /* constructors */
-    Trail(
-      const std::set<std::tuple<int, 
-      int>>& _alternatingTrail): edges(_alternatingTrail) {}
+    Trail(const std::set<std::tuple<int, int>>& _alternatingTrail) :
+      edges(_alternatingTrail) {}
     Trail(const std::vector<int>& edges, int i);
     Trail(): edges(std::set<std::tuple<int,int>>()) {}
 
     static const std::unique_ptr<Trail> getRandomTour(
       const std::vector<std::vector<int>>& w);
-    static const std::tuple<int, int> makeTuple(int u, int v);
-
     bool isTour(int n) const;
 
     /* utility functions */
-    int cost(const Graph& g) const;
-    int size();
-    bool contains(const std::tuple<int, int>& i) const;
-    void insert(const std::tuple<int, int>& i);
-    void erase(const std::tuple<int, int>& i);
+    ...
 
     /* set operations */
     std::unique_ptr<Trail> trailUnion(const Trail& otherTrail) const;
@@ -262,37 +256,14 @@ class Trail {
 };
 ```
 
-LK needs to check frequently whether if a given trail is a tour, `Trail::isTour`, in \ref{lst::isTour} does exactly that.
+LK needs to check frequently whether if a given trail is a tour, `Trail::isTour`, does exactly that.
 `isTour` takes as input the size of the tour, then walks along the adjacent edges, if during the walk the function did
 not return to the initial node, or it couldn't walk along all edges of the trail (because they weren't all adjacent) then
 the trail is not a tour.
 
-Listing: Function `isTour` from Trail class.
-
-```{#lst:isTour .cpp}
-bool isTour() const {
-
-  std::vector<bool> visited(edges.size(), false);
-  int j = 0;
-  for(int s = 0; s < edges.size(); ++s) {
-
-    const auto& it = std::find_if(
-      this->edges.begin(),   
-      this->edges.end(),
-      [s, j, &visited, n](const auto& edge){ 
-        const auto [x, y] = edge;
-        int i = j == x ? y : x;
-        return (x == j || y == j) && (!visited.at(i) || (s == n - 1 && i == 0)); });
-    if(it != this->edges.end()) {
-      visited.at(j) = true;
-      const auto [x, y] = *it;
-      j = x == j ? y : x;
-    }
-  }
-  
-  return std::find(visited.begin(), visited.end(), false) == visited.end();
-}
-```
+The initial tour of LK is created randomly via the static function 
+`Trail::getRandomTour`, which starts from a random node, than chooses
+randomly the another node which was not already visited, until it reaches the initial vertex.
 
 ## Issues of the implementation
 
@@ -340,7 +311,7 @@ Objective:
 Constraints:
 
 \begin{align}
-  \sum_{i:(i,j) \in A} x_{ik}-\sum_{j:(k,j) \in A,j\neq 0} x^k_{ji} & = 1 && \forall k\in N \setminus \{0\} \\
+  \sum_{i:(i,j) \in A} x_{ik}-\sum_{j:(k,j) \in A,j\neq 0} x_{kj} & = 1 && \forall k\in N \setminus \{0\} \\
   \sum_{i:(i,j)\in A} y_{ij}&= 1 && \forall i\in N \\
   \sum_{j:(i,j)\in A} y_{ij}&= 1 && \forall j\in N \\
   x_{ij} & \leq (|N| - 1) y_{ij} && \forall (i,j)\in A,j\neq 0 \\
@@ -352,7 +323,7 @@ Constraints:
 
 > Note that every `NULL` field is automatically filled by a default value by the CPLEX API.
 
-Listing: Initialization of variable (7), from [MILP model].
+Listing: Initialization of variable (7), from [Model].
 
 ```{#lst:initYVars .cpp}
 for(int i = 0; i < N; ++i) {
@@ -366,7 +337,7 @@ for(int i = 0; i < N; ++i) {
 }
 ```
 
-Listing: Initialization of variable (6), from [MILP model].
+Listing: Initialization of variable (6), from [Model].
 
 ```{#lst:initXVars .cpp}
 for(int i = 0; i < N * (N - 1); ++i) {
@@ -381,7 +352,7 @@ Note that:
  - constraint (6) describes $x_{i,j}$ as a positive, real, number coupled with each edge in $A$, except for $(i,j), j = 0$, thus I initialized $N * (N - 1)$ variables, which are variables $x_{0,1}, x_{0,2}, ..., x_{1,1},..., x_{|N| - 1, |N| - 1}$
  - the default values for type and bounds of a variable create a continuous number, bounded between zero and infinite.
 
-Listing: Creation of the first constraint, (2) in [MILP model].
+Listing: Creation of the first constraint, (2) in [Model].
 
 ```{#lst:firstConstraint .cpp}
 for(int k = 0; k < N - 1; ++k) {
@@ -407,61 +378,10 @@ for(int k = 0; k < N - 1; ++k) {
   );
 }
 ```
-Listing: Constraint (3) from [MILP model].
 
-```{#lst:secondConstraint .cpp}
-for(int i = 0; i < N; ++i) {
-  std::vector<int> idx(N);
-  for(int j = 0; j < N; ++j) { // y_i_j 
-    idx[j] = i * N + j;
-  }
-  std::vector<double> coef(N, 1.0);
-  double rhs = 1.0;
-  int matbeg = 0;
-  CHECKED_CPX_CALL(
-    CPXaddrows, 
-    env, lp, 0, 1, idx.size(), &rhs, NULL, &matbeg, &idx[0], &coef[0], NULL, NULL
-  );
-}
-```
+\ref{lst:firstConstraint} is an example of a constraint. The other ones
+are quite similar.
 
-Listing: Constraint (4) from [MILP model].
-
-```{#lst:thirdConstraint .cpp}
-for(int j = 0; j < N; ++j) {
-  std::vector<int> idx(N);
-  for(int i = 0; i < N; ++i) { // y_i_j 
-    idx[i] = i * N + j;
-  }
-  std::vector<double> coef(N, 1.0);
-  double rhs = 1.0;
-  int matbeg = 0;
-  CHECKED_CPX_CALL(
-    CPXaddrows, 
-    env, lp, 0, 1, idx.size(), &rhs, NULL, &matbeg, &idx[0], &coef[0], NULL, NULL
-  );
-}
-```
-
-Listing: Constraint (5) from [MILP model].
-
-```{#lst:fourthConstraint .cpp}
-for (int i = 0; i < N; ++i) {
-  for (int j = 1; j < N; ++j) {
-    std::vector<int> idx(2);
-    idx[0] = i * N + j; // y_i_j
-    idx[1] = N * N + i * (N - 1) + j - 1; // x_i_j
-    std::vector<double> coef(2, 1.0);
-    coef[0] = - N + 1.0;
-    char sense = 'L';
-    int matbeg = 0;
-    CHECKED_CPX_CALL(
-      CPXaddrows, 
-      env, lp, 0, 1, idx.size(), NULL, &sense, &matbeg, &idx[0], &coef[0], NULL, NULL
-    );
-  }
-}
-```
 
 # Tests
 
@@ -542,7 +462,7 @@ The character `-` in both tables represents either a $0$ or a value smaller than
 | 100_l_9 | 236.204 | 234.676 | 0,41010 | 51,99832 | 415,53863 |
 
 
-: The table displays the min, max, exact cost obtained by running the algorithm Lin-Kernighan 10 times for each instance.contains data about running times, in seconds.\label{tab:results}
+: The table displays the best solution found by LK, the solution found via MILP. It contains data about running times, in seconds.\label{tab:results}
 
 | Nodes | Mean cpu time | Mean error (%) | Max error (%) | LK std dev CPU time (%) |
 | --: | --: | ---: | ---: | ----: |
@@ -552,18 +472,18 @@ The character `-` in both tables represents either a $0$ or a value smaller than
 | 80 | 0,25349 | 0,55% | 1,74% | 28,95% |
 | 100 | 0,48581 | 0,90% | 1,47% | 16,75% |
 
-: Running times  and results of the instances tested, grouped by size of instance, using the Lin-Kernighan heuristic implementation. The table displays the mean and max relative error, with respect to the exact solutions obtained via MILP, the mean CPU time, in seconds, and the relative standard deviation of the CPU time in LK. \label{tab:summary}
+: Running times  and results of the instances tested, grouped by size of instance, using LK. The table displays the mean and max relative error, with respect to the solutions obtained via MILP, the mean CPU time, in seconds, and the relative standard deviation of the CPU time in LK. \label{tab:summary}
 
 From \ref{tab:summary} I notice the following:
 
- - running times vary considerably within instances of the same size, that is also something that is apparent in MILP, but this time I also notice that execution times vary between different executions of the same instance, that is because each time LK starts with a different random tour, which is shown in \ref{img:stdcost}
+ - running times vary considerably across instances of the same size, which happens in MILP as well, but this time I also notice that execution times vary between different executions of the same instance, that is because each time LK starts with a different random tour, which is shown in \ref{img:stdcost}. This visualization shows that as the size of the instances grow, the variation in execution times become less noticeable
  - errors are on average less than $1%$, and less than $2%$ in the worst case, which is surprisingly good.
 
 ![A graph that represents the relative standard deviation of cost, grouped by number of nodes.\label{img:stdcost}](src/relStdDev.pdf)
 
 Graphs \ref{img:time}, \label{img:timelog}, \label{img:timecpuuser} all show different visualization for execution
 time of MILP against LK. I already know from table \ref{tab:results} that on average, even on the biggest 
-instance, LK improves by a huge margin execution times. The visualizations plot time complexity and how it behaves with respect of the different instances, from the trend lines I can immediately notice that MILP grows much faster than LK, especially towards the end. 
+instance, LK improves by a huge margin execution times. The visualizations plot time complexity and how it behaves with respect of the different instances, from the trend lines I notice that MILP has a steeper growth with respect to LK, especially towards the instances with a size of 80 nodes and 100 nodes. 
 
 ![A graph that represents the behavior of LK with respect to CPU time, in seconds, grouped by number of nodes.\label{img:time}](src/cpuTimeNodes.pdf)
 
@@ -576,14 +496,14 @@ instance, LK improves by a huge margin execution times. The visualizations plot 
 In this report I showed a surprisingly good heuristic, LK, and how it performs
 against an algorithm which finds the exact solution, namely MILP. These two 
 approaches are then compared with respect to the solution and the execution time.
-I notice that LK always provides LK solutions with near optimal cost with a margin
-of error which is consistently under 2%, at least for instances with less than 100 holes. LK execution times are considerably lower than MILP. If I would have to answer the question of whether if to use MILP or LK in a 
+I showed that my implementation of LK always provides near-optimal solutions, with a margin
+of error which is consistently under $2%$, at least for instances with less than $100$ holes. LK execution times are considerably lower than MILP. If I would have to answer the question of whether if to use MILP or LK in a 
 TSP drilling problem, I would chose LK.
 
 Note that in this report the biggest graph has 100 nodes, there might 
 be electronic boards that need more than 100 holes. LK shows promising result with
 the following instance, <https://www.math.uwaterloo.ca/tsp/vlsi/pbm436.tour.html>,
-even though execution times grow considerably, to around 15 minutes, the best solution
+even though execution time grows considerably, to around 15 minutes, and the best solution
 found is still near optimal, 1443 against 1471.
 
 # References

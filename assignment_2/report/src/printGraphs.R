@@ -11,7 +11,7 @@ p <- ggplot(lkVisual, aes(x=nodes, y=meanCpuTime, group = 1)) +
     ggtitle("CPU time against nodes") +
     ylab("Time (seconds)") +
     geom_smooth()
-ggsave(plot = p, width = 6, height = 4, dpi = 300, filename = "cpuTimeNodes.pdf")
+ggsave(plot = p, width = 5, height = 3, dpi = 300, filename = "cpuTimeNodes.pdf")
 
 
 names(lkVisual)[9] ="cpuTime"
@@ -34,7 +34,7 @@ p <- ggplot(visuals, aes(x=nodes, y=cpuTime, group=Algorithm, col=Algorithm, fil
     ylab("Time (seconds)") +
     scale_y_log10(breaks = base_breaks(), labels = prettyNum) +
     geom_smooth()
-ggsave(plot = p, width = 6, height = 4, dpi = 300, filename = "cpuTimeNodesMerge.pdf")
+ggsave(plot = p, width = 5, height = 3, dpi = 300, filename = "cpuTimeNodesMerge.pdf")
 
 names(lkVisual)[9] ="time"
 names(milpVisual)[4] ="time"
@@ -49,7 +49,7 @@ p <- ggplot(visuals, aes(x=nodes, y=time, group=Algorithm, col=Algorithm, fill=A
     ylab("Time (seconds)") +
     scale_y_log10(breaks = base_breaks(), labels = prettyNum) +
     geom_smooth()
-ggsave(plot = p, width = 6, height = 4, dpi = 300, filename = "cpuAndUserTimeNodesMerge.pdf")
+ggsave(plot = p, width = 5, height = 3, dpi = 300, filename = "cpuAndUserTimeNodesMerge.pdf")
 
 fun1 <- function(x, y) (x/y) * 100
 lkVisual$relstd <- mapply(fun1, lkVisual$stdDevCost, lkVisual$meanCost)
@@ -62,4 +62,4 @@ p <- ggplot(lkVisual, aes(x=nodes, y=relstd, group=1)) +
     ylab("Relative std deviation (percentage)") +
     scale_y_log10(breaks = base_breaks(), labels = prettyNum) +
     geom_smooth()
-ggsave(plot = p, width = 6, height = 4, dpi = 300, filename = "relStdDev.pdf")
+ggsave(plot = p, width = 5, height = 3, dpi = 300, filename = "relStdDev.pdf")

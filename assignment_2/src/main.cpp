@@ -59,8 +59,6 @@ const Result runLK(const std::unique_ptr<LinKernighan>& lk, const Graph& g) {
 
 int main(int argc, char const *argv[]) {
 
-  std::cout.precision(std::numeric_limits<double>::max_digits10 + 1);
-
   try {
     
     const auto parser = std::make_unique<Parser>();
@@ -68,39 +66,15 @@ int main(int argc, char const *argv[]) {
 
     if (argc >= 2) {
       const auto &graph = parser->buildGraph("../tsp_instances/" + std::string(argv[1]));
-      std::cout<< "Parsed graph of size " << graph.N << "\n";
-
-      std::vector<int> costs;
-      std::vector<double> cpuTimes;
-      for(int i = 0; i < 10; ++i) {
-          const auto result = runLK(linKernighan, graph);
-          costs.push_back(result.result);
-          cpuTimes.push_back(result.cpuTime);
-        }
+      std::cout << "Parsed graph of size " << graph.N << "\n";
       
-        auto costsMean = mean(costs);
-        auto costsStdDev = stdDev(costsMean, costs);
+      const auto &results = runLK(linKernighan, graph);
 
-        auto cpuTimesMean = mean(cpuTimes);
-        auto cpuTimesStdDev = stdDev(cpuTimesMean, cpuTimes);
+      std::cout << std::setprecision(10)
+                << "Tour cost: " << results.result << "\n"
+                << "User time (seconds): " <<  results.userTime << "\n"
+                << "CPU time (seconds): " << results.cpuTime << "\n";
 
-        auto minCost = std::min_element(costs.begin(), costs.end());
-        auto maxCost = std::max_element(costs.begin(), costs.end());
-        auto minCpuTime = std::min_element(cpuTimes.begin(), cpuTimes.end());
-        auto maxCpuTime = std::max_element(cpuTimes.begin(), cpuTimes.end());
-
-        std::cout << std::string(argv[1]) << " TSP value: " << *minCost << "\n";
-        std::cout << std::setprecision(10)
-          << std::string(argv[1]) << ","
-          << graph.N << ","
-          << *minCost << ","
-          << *maxCost << ","
-          << costsMean << ","
-          << costsStdDev << ","
-          << *minCpuTime << ","
-          << *maxCpuTime << ","
-          << cpuTimesMean << ","
-          << cpuTimesStdDev << "\n";
 
     } else {
 

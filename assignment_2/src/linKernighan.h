@@ -17,7 +17,7 @@ class LinKernighan {
   const std::unique_ptr<Trail> localOptimalTour(const Graph& g) {
 
     const auto& weight = g.c;
-    auto tour = Trail::getRandomTour(weight);
+    auto tour = Trail::getRandomTour(g.c);
     int p2 = 2;
     int p1 = 5;
 
@@ -28,7 +28,7 @@ class LinKernighan {
 
     do {
 
-      G = 0.0;
+      G = 0;
       F = std::make_unique<Trail>();
       for(size_t u = 0; u < weight.size(); ++u) { stack.push_front({u, 0, 0.0}); }
       
@@ -53,7 +53,7 @@ class LinKernighan {
               alternatingTrailPairwise->insert(yi);
               const auto& symDiff = tour->trailSymmetricDifference(*alternatingTrailPairwise.get());
 
-              if(i <= p2 || (!union_->contains(yi) && symDiff->isTour())) {
+              if(i <= p2 || (!union_->contains(yi) && symDiff->isTour(g.N))) {
                 stack.push_front({u, i + 1, gi + weight.at(vi).at(u)});
               }
               alternatingTrailPairwise->erase(xi);
@@ -71,7 +71,7 @@ class LinKernighan {
           alternatingTrailPairwise->insert(endNode);
           const auto& symDiff = tour->trailSymmetricDifference(*alternatingTrailPairwise.get());
           
-          if (candidateG > 0 && candidateG > G && symDiff->isTour()) {
+          if (candidateG > 0 && candidateG > G && symDiff->isTour(g.N)) {
             F = std::make_unique<Trail>(*alternatingTrailPairwise.get()); // copy constructor
             G = candidateG;
           }

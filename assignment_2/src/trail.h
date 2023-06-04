@@ -61,12 +61,12 @@ class Trail {
       return u > v ? std::make_tuple(v, u) : std::make_tuple(u, v);
     }
 
-    bool isTour() const {
+    bool isTour(int size) const {
 
-      std::vector<bool> visited(edges.size(), false);
+      std::vector<bool> visited(size, false);
       
       int j = 0;
-      int n = edges.size();
+      int n = size;
       for(int s = 0; s < n; ++s) {
         // find the successor of j I did not visit
         const auto& it = std::find_if(
@@ -135,38 +135,6 @@ class Trail {
         std::inserter(result, result.begin())); 
       auto trailPtr = std::make_unique<Trail>(result);
       return trailPtr;
-    }
-
-    static const std::unique_ptr<Trail> getRandomTourGreedy(const Graph& g) {
-      std::set<std::tuple<int,int>> tour;
-      const auto& weight = g.c;
-      const size_t n = weight.size();
-      srand (time(NULL));
-
-      int i = rand() % n;
-      int initial = i;
-      std::vector<bool> visited(n, false);
-      visited.at(i) = true;
-
-      while (tour.size() < n - 1) {
-
-        const auto orderedNeighbors = g.getNearestNeighbors(i);
-
-        const auto firstNotVisited = std::find_if(
-          orderedNeighbors.begin(),
-          orderedNeighbors.end(),
-          [&visited] (const auto& neighbor) { return !visited.at(neighbor); }
-        );
-        tour.insert({i, *firstNotVisited});
-
-        visited.at(*firstNotVisited) = true;
-        i = *firstNotVisited;
-
-      }
-      tour.insert({i, initial});
-
-      auto tourPtr = std::make_unique<Trail>(tour);
-      return tourPtr;
     }
 
 };
