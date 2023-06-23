@@ -6,7 +6,7 @@
 #include <memory>
 #include <iostream>
 #include <string>
-#include <filesystem>
+#include <experimental/filesystem>
 #include <fstream>
 #include <vector>
 #include <algorithm>
@@ -14,6 +14,8 @@
 #include <tuple>
 #include <cmath>
 #include <iomanip>
+
+namespace fs = std::experimental::filesystem;
 
 struct Result {
   int result;
@@ -78,14 +80,14 @@ int main(int argc, char const *argv[]) {
 
     } else {
 
-      auto path = std::filesystem::path("../tsp_instances");
-      std::cout << "Parsing files from directory " << std::filesystem::canonical(path) << "\n";
-      auto files = std::filesystem::directory_iterator(path);
+      auto path = fs::path("../tsp_instances");
+      std::cout << "Parsing files from directory " << fs::canonical(path) << "\n";
+      auto files = fs::directory_iterator(path);
       std::vector<std::tuple<std::string, std::unique_ptr<Graph>>> graphs;
 
       std::transform(
-        std::filesystem::begin(files),
-        std::filesystem::end(files),
+        fs::begin(files),
+        fs::end(files),
         std::back_inserter(graphs),
         [&parser](const auto &f){ 
           return std::make_tuple(

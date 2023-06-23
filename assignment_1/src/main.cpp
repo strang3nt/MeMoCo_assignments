@@ -7,14 +7,15 @@
 #include <memory>
 #include <iostream>
 #include <string>
-#include <filesystem>
+#include <experimental/filesystem>
 #include <fstream>
 #include <vector>
 #include <algorithm>
 #include <numeric>
-#include <execution>
 #include <tuple>
 #include <iomanip>
+
+namespace fs = std::experimental::filesystem;
 
 // error  status and message buffer
 int status;
@@ -41,19 +42,18 @@ int main(int argc, char const *argv[]) {
                 << "CPU time (seconds): " << results.cpuTime << "\n";
     } else {
 
-      auto path = std::filesystem::path("../tsp_instances");
-      std::cout << "Parsing files from directory " << std::filesystem::canonical(path) << "\n";
-      auto files = std::filesystem::directory_iterator(path);
+      auto path = fs::path("../tsp_instances");
+      std::cout << "Parsing files from directory " << fs::canonical(path) << "\n";
+      auto files = fs::directory_iterator(path);
 
-      int fileCount = std::distance(std::filesystem::directory_iterator(path), std::filesystem::directory_iterator{});
+      int fileCount = std::distance(fs::directory_iterator(path), fs::directory_iterator{});
       std::vector<int> a(fileCount);
       std::iota(a.begin(), a.end(), 0);
       std::vector<std::tuple<std::string, std::unique_ptr<Graph>>> graphs(fileCount);
 
       std::transform(
-        std::execution::par,
-        std::filesystem::begin(files),
-        std::filesystem::end(files),
+        fs::begin(files),
+        fs::end(files),
         a.begin(),
         graphs.begin(),
         [&graphs, &parser](const auto &f, const auto &i){ 
